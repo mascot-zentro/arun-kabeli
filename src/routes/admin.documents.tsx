@@ -59,8 +59,8 @@ function AdminDocs() {
       <div className="flex items-center justify-between">
         <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Documents</h1><AdminSpecs items={SPECS.document} /></div><p className="text-muted-foreground">Upload PDFs and files.</p></div>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-          <Upload className="h-4 w-4" />{uploading ? "Uploading..." : "Upload"}
-          <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+          <Upload className="h-4 w-4" />{uploading ? "Uploading..." : "Choose file"}
+          <input type="file" className="hidden" onChange={(e) => { if (e.target.files?.[0]) { setPendingFile(e.target.files[0]); setPendingCategory(""); } e.target.value = ""; }} />
         </label>
       </div>
 
@@ -73,7 +73,7 @@ function AdminDocs() {
           <div key={d.id} className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
             <FileText className="h-5 w-5 text-accent" />
             <input defaultValue={d.title} onBlur={(e) => e.target.value !== d.title && updateTitle(d.id, e.target.value)} className="min-w-[12rem] flex-1 rounded-md border-0 bg-transparent px-2 py-1 text-sm font-medium hover:bg-secondary focus:bg-background focus:ring-1" />
-            <input defaultValue={d.category ?? ""} onBlur={(e) => toggleCategory(d.id, e.target.value)} placeholder="Category" className="w-32 rounded-md border bg-background px-2 py-1 text-xs" />
+            <input defaultValue={d.category ?? ""} list="cat-list" onBlur={(e) => toggleCategory(d.id, e.target.value)} placeholder="Category" className="w-36 rounded-md border bg-background px-2 py-1 text-xs" />
             <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs" title="Show this document as a popup the first time a visitor opens the Documents page">
               <input
                 type="checkbox"
