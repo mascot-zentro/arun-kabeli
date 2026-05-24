@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn, LayoutDashboard } from "lucide-react";
 import logo from "@/assets/logo.webp";
+import { useAuth } from "@/hooks/useAuth";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -15,6 +16,11 @@ const nav = [
 
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [open, setOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
+  const adminLink = user && isAdmin
+    ? { to: "/admin/dashboard", label: "Admin", icon: LayoutDashboard }
+    : { to: "/admin/login", label: "Login", icon: LogIn };
+
   return (
     <header className={`absolute top-0 z-30 w-full ${transparent ? "" : "bg-primary"}`}>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -22,12 +28,20 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           <img src={logo} alt="Arun Kabeli Power logo" className="h-11 w-11 rounded-full bg-white/95 p-0.5" width={44} height={44} />
           <span className="hidden font-display text-base font-bold sm:block">Arun Kabeli Power</span>
         </Link>
-        <nav className="hidden gap-7 text-sm font-medium text-primary-foreground/90 lg:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-primary-foreground/90 lg:flex">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} className="transition hover:text-accent" activeProps={{ className: "text-accent" }} activeOptions={{ exact: n.to === "/" }}>
               {n.label}
             </Link>
           ))}
+          <Link
+            to={adminLink.to}
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary-foreground/30 px-3 py-1.5 text-primary-foreground transition hover:border-accent hover:text-accent"
+            activeProps={{ className: "border-accent text-accent" }}
+          >
+            <adminLink.icon className="h-4 w-4" />
+            {adminLink.label}
+          </Link>
         </nav>
         <button onClick={() => setOpen(!open)} className="text-primary-foreground lg:hidden" aria-label="Menu">
           {open ? <X /> : <Menu />}
@@ -39,6 +53,9 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             {nav.map((n) => (
               <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="py-2 hover:text-accent">{n.label}</Link>
             ))}
+            <Link to={adminLink.to} onClick={() => setOpen(false)} className="inline-flex items-center gap-2 py-2 hover:text-accent">
+              <adminLink.icon className="h-4 w-4" />{adminLink.label}
+            </Link>
           </nav>
         </div>
       )}
