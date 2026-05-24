@@ -13,23 +13,33 @@ function AdminDocs() {
   const qc = useQueryClient();
   const [viewing, setViewing] = useState<{ url: string; title: string } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingCategory, setPendingCategory] = useState("");
   const { data: docs } = useQuery({
     queryKey: ["admin-docs"],
     queryFn: async () => (await supabase.from("documents").select("*").order("uploaded_at", { ascending: false })).data ?? [],
   });
 
-  async function upload(file: File) {
+  const categories = Array.from(new Set((docs ?? []).map((d) => d.category).filter(Boolean))) as string[];
+
+  async function confirmUpload() {
+    if (!pendingFile) return;
+    const file = pendingFile;
+    const category = pendingCategory.trim() || "General";
     if (file.size > 50 * 1024 * 1024) { toast.error("Max 50MB"); return; }
     setUploading(true);
     const path = `${Date.now()}-${file.name}`;
     const { error: upErr } = await supabase.storage.from("documents").upload(path, file);
     if (upErr) { toast.error(upErr.message); setUploading(false); return; }
     const { data } = supabase.storage.from("documents").getPublicUrl(path);
-    const { error } = await supabase.from("documents").insert({ title: file.name, file_url: data.publicUrl, file_size_bytes: file.size, category: "General" });
+    const { error } = await supabase.from("documents").insert({ title: file.name, file_url: data.publicUrl, file_size_bytes: file.size, category });
     setUploading(false);
+    setPendingFile(null);
+    setPendingCategory("");
     if (error) toast.error(error.message);
     else { toast.success("Uploaded"); qc.invalidateQueries({ queryKey: ["admin-docs"] }); }
   }
+
   async function remove(id: string) {
     if (!confirm("Delete?")) return;
     const { error } = await supabase.from("documents").delete().eq("id", id);
