@@ -54,12 +54,37 @@ function AdminDocs() {
         </label>
       </div>
 
-      <div className="mt-8 space-y-2">
+      <div className="mt-6 rounded-lg border bg-secondary/30 p-3 text-xs text-muted-foreground">
+        <strong className="text-foreground">Popup on first visit:</strong> tick "Popup" to show a document automatically the first time a visitor opens the Documents page (once per browser session). If multiple are ticked, the lower <strong>Order</strong> number is shown first.
+      </div>
+
+      <div className="mt-4 space-y-2">
         {docs?.map((d) => (
-          <div key={d.id} className="flex items-center gap-3 rounded-lg border bg-card p-3">
+          <div key={d.id} className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
             <FileText className="h-5 w-5 text-accent" />
-            <input defaultValue={d.title} onBlur={(e) => e.target.value !== d.title && updateTitle(d.id, e.target.value)} className="flex-1 rounded-md border-0 bg-transparent px-2 py-1 text-sm font-medium hover:bg-secondary focus:bg-background focus:ring-1" />
+            <input defaultValue={d.title} onBlur={(e) => e.target.value !== d.title && updateTitle(d.id, e.target.value)} className="min-w-[12rem] flex-1 rounded-md border-0 bg-transparent px-2 py-1 text-sm font-medium hover:bg-secondary focus:bg-background focus:ring-1" />
             <input defaultValue={d.category ?? ""} onBlur={(e) => toggleCategory(d.id, e.target.value)} placeholder="Category" className="w-32 rounded-md border bg-background px-2 py-1 text-xs" />
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs" title="Show this document as a popup the first time a visitor opens the Documents page">
+              <input
+                type="checkbox"
+                defaultChecked={!!(d as any).show_as_popup}
+                onChange={async (e) => {
+                  await supabase.from("documents").update({ show_as_popup: e.target.checked }).eq("id", d.id);
+                  qc.invalidateQueries({ queryKey: ["admin-docs"] });
+                }}
+              />
+              Popup
+            </label>
+            <input
+              type="number"
+              defaultValue={(d as any).popup_sort_order ?? 0}
+              onBlur={async (e) => {
+                await supabase.from("documents").update({ popup_sort_order: Number(e.target.value) || 0 }).eq("id", d.id);
+                qc.invalidateQueries({ queryKey: ["admin-docs"] });
+              }}
+              title="Order popups appear in (lower = first)"
+              className="w-16 rounded-md border bg-background px-2 py-1 text-xs"
+            />
             <button onClick={() => setViewing({ url: d.file_url, title: d.title })} className="rounded-md p-2 hover:bg-secondary"><Eye className="h-4 w-4" /></button>
             <button onClick={() => remove(d.id)} className="rounded-md p-2 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
           </div>
