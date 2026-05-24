@@ -18,8 +18,8 @@ function Login() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user && isAdmin) router.navigate({ to: "/admin/dashboard" });
-  }, [loading, user, isAdmin, router]);
+    if (!loading && user) router.navigate({ to: "/admin/dashboard" });
+  }, [loading, user, router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
