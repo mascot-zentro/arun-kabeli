@@ -134,23 +134,41 @@ function Documents() {
       <Dialog open={!!viewing} onOpenChange={(v) => !v && setViewing(null)}>
         <DialogContent className="flex h-[90vh] max-w-6xl flex-col">
 
-          <DialogHeader><DialogTitle>{viewing?.title}</DialogTitle></DialogHeader>
-          {viewing && <iframe src={viewing.url} className="h-full w-full rounded-md border" title={viewing.title} />}
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-3 pr-8">
+              <span className="truncate">{viewing?.title}</span>
+              {viewing && (
+                <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md border px-2 py-1 text-xs font-normal hover:bg-secondary">Open in new tab</a>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {viewing && (
+            <object data={viewing.url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
+              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewing.url)}&embedded=true`} className="h-full w-full rounded-md border" title={viewing.title} />
+            </object>
+          )}
         </DialogContent>
       </Dialog>
 
       <Dialog open={currentPopup !== null} onOpenChange={(v) => !v && setPopupIdx(null)}>
-        <DialogContent className="h-[85vh] max-w-5xl">
+        <DialogContent className="flex h-[85vh] max-w-5xl flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between gap-3 pr-8">
-              <span>{currentPopup?.title}</span>
-              {popupDocs.length > 1 && (
-                <span className="font-mono text-xs text-muted-foreground">{(popupIdx ?? 0) + 1} / {popupDocs.length}</span>
-              )}
+              <span className="truncate">{currentPopup?.title}</span>
+              <div className="flex items-center gap-2">
+                {currentPopup && (
+                  <a href={currentPopup.file_url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md border px-2 py-1 text-xs font-normal hover:bg-secondary">Open in new tab</a>
+                )}
+                {popupDocs.length > 1 && (
+                  <span className="font-mono text-xs text-muted-foreground">{(popupIdx ?? 0) + 1} / {popupDocs.length}</span>
+                )}
+              </div>
             </DialogTitle>
           </DialogHeader>
           {currentPopup && (
-            <iframe src={currentPopup.file_url} className="h-full w-full rounded-md border" title={currentPopup.title} />
+            <object data={currentPopup.file_url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
+              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPopup.file_url)}&embedded=true`} className="h-full w-full rounded-md border" title={currentPopup.title} />
+            </object>
           )}
           {popupDocs.length > 1 && (
             <div className="flex items-center justify-between border-t pt-3">
