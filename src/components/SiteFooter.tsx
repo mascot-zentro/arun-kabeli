@@ -35,7 +35,18 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-primary-foreground/10 py-5 text-center text-xs text-primary-foreground/60">
-        © {new Date().getFullYear()} Arun Kabeli Power Limited. All rights reserved.
+        <p>© {new Date().getFullYear()} Arun Kabeli Power Limited. All rights reserved.</p>
+        <p className="mt-1">
+          Developed by{" "}
+          <a
+            href="https://www.shreeyushdhungana.com.np/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-accent hover:underline"
+          >
+            Shreeyush Dhungana
+          </a>
+        </p>
       </div>
     </footer>
   );
