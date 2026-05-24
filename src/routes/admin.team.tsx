@@ -33,7 +33,7 @@ function AdminTeam() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div><h1 className="font-display text-3xl font-bold">Team</h1><p className="text-muted-foreground">Manage team members.</p></div>
+        <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Team</h1><AdminSpecs items={SPECS.teamPhoto} /></div><p className="text-muted-foreground">Manage team members.</p></div>
         <button onClick={() => setEdit({ name: "", sort_order: 0, is_visible: true } as any)} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" />New</button>
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
