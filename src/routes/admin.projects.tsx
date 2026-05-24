@@ -1,3 +1,4 @@
+import { AdminSpecs, SPECS } from "@/components/AdminSpecs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -33,7 +34,7 @@ function AdminProjects() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div><h1 className="font-display text-3xl font-bold">Projects</h1><p className="text-muted-foreground">Manage hydropower projects.</p></div>
+        <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Projects</h1><AdminSpecs items={SPECS.projectCover} /></div><p className="text-muted-foreground">Manage hydropower projects.</p></div>
         <button onClick={() => setEdit({})} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" />New</button>
       </div>
 

@@ -1,3 +1,4 @@
+import { AdminSpecs, SPECS } from "@/components/AdminSpecs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,7 +37,7 @@ function AdminPages() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl font-bold">Page Content</h1>
+      <div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Page Content</h1><AdminSpecs items={SPECS.pageContent} /></div>
       <p className="text-muted-foreground">Edit reusable JSON content blocks (e.g. <code className="font-mono text-xs">home.hero</code>, <code className="font-mono text-xs">about.story</code>).</p>
 
       <div className="mt-6 flex gap-2">

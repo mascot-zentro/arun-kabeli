@@ -1,3 +1,4 @@
+import { AdminSpecs, SPECS } from "@/components/AdminSpecs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -46,7 +47,7 @@ function AdminDocs() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div><h1 className="font-display text-3xl font-bold">Documents</h1><p className="text-muted-foreground">Upload PDFs and files (max 50MB).</p></div>
+        <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Documents</h1><AdminSpecs items={SPECS.document} /></div><p className="text-muted-foreground">Upload PDFs and files.</p></div>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
           <Upload className="h-4 w-4" />{uploading ? "Uploading..." : "Upload"}
           <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />

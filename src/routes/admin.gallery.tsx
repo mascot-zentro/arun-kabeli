@@ -1,3 +1,4 @@
+import { AdminSpecs, SPECS } from "@/components/AdminSpecs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -45,7 +46,7 @@ function AdminGallery() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div><h1 className="font-display text-3xl font-bold">Gallery</h1><p className="text-muted-foreground">Upload and tag photos.</p></div>
+        <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Gallery</h1><AdminSpecs items={SPECS.galleryPhoto} /></div><p className="text-muted-foreground">Upload and tag photos.</p></div>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
           <Upload className="h-4 w-4" />{uploading ? "Uploading..." : "Upload photos"}
           <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => e.target.files && upload(e.target.files)} />
