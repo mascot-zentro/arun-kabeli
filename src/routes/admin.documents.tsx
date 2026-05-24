@@ -102,10 +102,55 @@ function AdminDocs() {
         {(!docs || docs.length === 0) && <p className="py-8 text-center text-muted-foreground">No documents yet.</p>}
       </div>
 
+      <datalist id="cat-list">
+        {categories.map((c) => <option key={c} value={c} />)}
+      </datalist>
+
+      <Dialog open={!!pendingFile} onOpenChange={(v) => { if (!v) { setPendingFile(null); setPendingCategory(""); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Choose category</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">File: <strong>{pendingFile?.name}</strong></p>
+          <label className="mt-2 block text-xs font-medium">Category (pick existing or type a new one)</label>
+          <input
+            autoFocus
+            list="cat-list-upload"
+            value={pendingCategory}
+            onChange={(e) => setPendingCategory(e.target.value)}
+            placeholder="e.g. Annual Report"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          />
+          <datalist id="cat-list-upload">
+            {categories.map((c) => <option key={c} value={c} />)}
+          </datalist>
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map((c) => (
+                <button key={c} type="button" onClick={() => setPendingCategory(c)} className="rounded-full border bg-secondary px-2.5 py-1 text-xs hover:bg-accent/20">{c}</button>
+              ))}
+            </div>
+          )}
+          <div className="mt-2 flex justify-end gap-2">
+            <button onClick={() => { setPendingFile(null); setPendingCategory(""); }} className="rounded-md border px-3 py-1.5 text-sm">Cancel</button>
+            <button onClick={confirmUpload} disabled={uploading} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{uploading ? "Uploading..." : "Upload"}</button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!viewing} onOpenChange={(v) => !v && setViewing(null)}>
-        <DialogContent className="h-[90vh] max-w-6xl">
-          <DialogHeader><DialogTitle>{viewing?.title}</DialogTitle></DialogHeader>
-          {viewing && <iframe src={viewing.url} className="h-full w-full rounded-md border" title={viewing.title} />}
+        <DialogContent className="flex h-[90vh] max-w-6xl flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-3 pr-8">
+              <span className="truncate">{viewing?.title}</span>
+              {viewing && (
+                <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md border px-2 py-1 text-xs font-normal hover:bg-secondary">Open in new tab</a>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {viewing && (
+            <object data={viewing.url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
+              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewing.url)}&embedded=true`} className="h-full w-full rounded-md border" title={viewing.title} />
+            </object>
+          )}
         </DialogContent>
       </Dialog>
     </div>
