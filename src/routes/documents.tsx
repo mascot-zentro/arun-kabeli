@@ -102,6 +102,44 @@ function Documents() {
           {viewing && <iframe src={viewing.url} className="h-full w-full rounded-md border" title={viewing.title} />}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={currentPopup !== null} onOpenChange={(v) => !v && setPopupIdx(null)}>
+        <DialogContent className="h-[85vh] max-w-5xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-3 pr-8">
+              <span>{currentPopup?.title}</span>
+              {popupDocs.length > 1 && (
+                <span className="font-mono text-xs text-muted-foreground">{(popupIdx ?? 0) + 1} / {popupDocs.length}</span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {currentPopup && (
+            <iframe src={currentPopup.file_url} className="h-full w-full rounded-md border" title={currentPopup.title} />
+          )}
+          {popupDocs.length > 1 && (
+            <div className="flex items-center justify-between border-t pt-3">
+              <button
+                onClick={() => setPopupIdx((i) => (i !== null && i > 0 ? i - 1 : i))}
+                disabled={popupIdx === 0}
+                className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4" /> Previous
+              </button>
+              <button
+                onClick={() => {
+                  if (popupIdx === null) return;
+                  if (popupIdx < popupDocs.length - 1) setPopupIdx(popupIdx + 1);
+                  else setPopupIdx(null);
+                }}
+                className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+              >
+                {popupIdx !== null && popupIdx < popupDocs.length - 1 ? (<>Next <ChevronRight className="h-4 w-4" /></>) : "Done"}
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <SiteFooter />
     </div>
   );
