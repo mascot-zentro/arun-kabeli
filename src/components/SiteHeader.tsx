@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, LogIn, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogIn, LayoutDashboard, Sun, Moon } from "lucide-react";
 import logo from "@/assets/logo.webp";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -17,6 +18,7 @@ const nav = [
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [open, setOpen] = useState(false);
   const { user, isAdmin } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const adminLink = user && isAdmin
     ? { to: "/admin/dashboard", label: "Admin", icon: LayoutDashboard }
     : { to: "/admin/login", label: "Login", icon: LogIn };
@@ -34,6 +36,13 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
               {n.label}
             </Link>
           ))}
+          <button
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="rounded-md border border-primary-foreground/30 p-1.5 text-primary-foreground transition hover:border-accent hover:text-accent"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
           <Link
             to={adminLink.to}
             className="inline-flex items-center gap-1.5 rounded-md border border-primary-foreground/30 px-3 py-1.5 text-primary-foreground transition hover:border-accent hover:text-accent"
@@ -43,9 +52,19 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             {adminLink.label}
           </Link>
         </nav>
-        <button onClick={() => setOpen(!open)} className="text-primary-foreground lg:hidden" aria-label="Menu">
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="rounded-md border border-primary-foreground/30 p-1.5 text-primary-foreground"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+        <button onClick={() => setOpen(!open)} className="text-primary-foreground" aria-label="Menu">
           {open ? <X /> : <Menu />}
         </button>
+        </div>
+
       </div>
       {open && (
         <div className="bg-primary px-6 pb-6 lg:hidden">
