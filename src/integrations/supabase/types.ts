@@ -51,6 +51,8 @@ export type Database = {
           file_url: string
           id: string
           is_public: boolean | null
+          popup_sort_order: number
+          show_as_popup: boolean
           title: string
           uploaded_at: string | null
         }
@@ -60,6 +62,8 @@ export type Database = {
           file_url: string
           id?: string
           is_public?: boolean | null
+          popup_sort_order?: number
+          show_as_popup?: boolean
           title: string
           uploaded_at?: string | null
         }
@@ -69,6 +73,8 @@ export type Database = {
           file_url?: string
           id?: string
           is_public?: boolean | null
+          popup_sort_order?: number
+          show_as_popup?: boolean
           title?: string
           uploaded_at?: string | null
         }
