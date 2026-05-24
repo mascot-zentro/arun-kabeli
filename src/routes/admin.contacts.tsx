@@ -42,7 +42,7 @@ function AdminContacts() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div><h1 className="font-display text-3xl font-bold">Contact Submissions</h1><p className="text-muted-foreground">{items?.length ?? 0} total</p></div>
+        <div><div className="flex items-center gap-3"><h1 className="font-display text-3xl font-bold">Contact Submissions</h1><AdminSpecs items={SPECS.contacts} /></div><p className="text-muted-foreground">{items?.length ?? 0} total</p></div>
         <button onClick={exportCsv} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Download className="h-4 w-4" />Export CSV</button>
       </div>
 
