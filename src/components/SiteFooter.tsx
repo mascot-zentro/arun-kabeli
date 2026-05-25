@@ -31,7 +31,7 @@ export function SiteFooter() {
         </div>
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest text-accent">Contact</h4>
-          <p className="mt-4 text-sm text-primary-foreground/70">Kathmandu, Nepal<br/>info@arunkabeli.com</p>
+          <p className="mt-4 text-sm text-primary-foreground/70">Kathmandu, Nepal<br/><a href="mailto:arunkabeli@gmail.com" className="hover:text-accent">arunkabeli@gmail.com</a></p>
         </div>
       </div>
       <div className="border-t border-primary-foreground/10 py-5 text-center text-xs text-primary-foreground/60">
