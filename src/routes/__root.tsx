@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext, useRouter, HeadContent, Scripts, Link } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
+import { useDisableInspect } from "@/hooks/useDisableInspect";
 
 function NotFoundComponent() {
   return (
@@ -76,10 +77,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const isAdmin = router.state.location.pathname.startsWith("/admin");
   return (
     <QueryClientProvider client={queryClient}>
+      {!isAdmin && <InspectGuard />}
       <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
+}
+
+function InspectGuard() {
+  useDisableInspect();
+  return null;
 }
