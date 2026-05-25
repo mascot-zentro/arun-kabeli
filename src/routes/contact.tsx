@@ -57,7 +57,7 @@ function Contact() {
             <h2 className="font-display text-2xl font-bold">Reach out</h2>
             <p className="mt-2 text-muted-foreground">Partnership, investment, and media inquiries welcome.</p>
             <div className="mt-6 space-y-4">
-              <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Email</div><div className="text-muted-foreground">info@arunkabeli.com</div></div></div>
+              <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Email</div><a href="mailto:arunkabeli@gmail.com" className="text-muted-foreground hover:text-accent">arunkabeli@gmail.com</a></div></div>
               <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Office</div><div className="text-muted-foreground">Kathmandu, Nepal</div></div></div>
             </div>
             <iframe src="https://www.google.com/maps?q=Kathmandu,Nepal&output=embed" className="mt-6 aspect-video w-full rounded-lg border" title="Office location" loading="lazy" />
