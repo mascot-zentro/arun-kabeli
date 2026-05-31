@@ -92,7 +92,13 @@ function usePageContent(sectionKey: string) {
         .select("content_json")
         .eq("section_key", sectionKey)
         .maybeSingle();
-      return (data?.content_json as Record<string, string>) ?? {};
+      if (!data?.content_json) return {};
+      const raw = data.content_json;
+      // content_json may come back as a string or parsed object depending on client version
+      if (typeof raw === "string") {
+        try { return JSON.parse(raw) as Record<string, string>; } catch { return {}; }
+      }
+      return raw as Record<string, string>;
     },
   });
 }

@@ -36,7 +36,12 @@ function TeamPage() {
         .select("content_json")
         .eq("section_key", "about.team")
         .maybeSingle();
-      return (data?.content_json as Record<string, string>) ?? {};
+      if (!data?.content_json) return {};
+      const raw = data.content_json;
+      if (typeof raw === "string") {
+        try { return JSON.parse(raw) as Record<string, string>; } catch { return {}; }
+      }
+      return raw as Record<string, string>;
     },
   });
 

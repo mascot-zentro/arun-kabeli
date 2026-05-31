@@ -109,7 +109,12 @@ function AdminPages() {
 
   const tpl = TEMPLATES.find((t) => t.key === active)!;
   const existing = sections?.find((s) => s.section_key === active);
-  const initial = (existing?.content_json as Record<string, string>) ?? {};
+  const initial: Record<string, string> = (() => {
+    const raw = existing?.content_json;
+    if (!raw) return {};
+    if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return {}; } }
+    return raw as Record<string, string>;
+  })();
 
   return (
     <div>
