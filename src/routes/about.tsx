@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -18,21 +18,84 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-function About() {
-  const { data: team } = useQuery({
-    queryKey: ["team"],
-    queryFn: async () => (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
-  });
+export const aboutLinks = [
+  { to: "/about/chairman", label: "Message from Chairman" },
+  { to: "/about/board", label: "Board of Directors" },
+  { to: "/about/team", label: "Our Team" },
+] as const;
 
+export function AboutSubNav() {
+  return (
+    <div className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 py-3">
+        {aboutLinks.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-primary [&.active]:bg-primary/10 [&.active]:text-primary"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function AboutDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1 transition hover:text-accent"
+      >
+        About
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border bg-card shadow-lg">
+          {aboutLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setOpen(false)}
+              className="block px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function About() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">Engineering Nepal's clean energy transition.</h1>
+          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
+            Engineering Nepal's clean energy transition.
+          </h1>
         </div>
       </section>
+
+      <AboutSubNav />
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-3">
@@ -63,25 +126,32 @@ function About() {
         </div>
       </section>
 
-      {team && team.length > 0 && (
-        <section className="py-20">
-          <div className="mx-auto max-w-7xl px-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Leadership</p>
-            <h2 className="mt-2 font-display text-4xl font-bold">Our Team</h2>
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
-              {team.map((m) => (
-                <div key={m.id} className="text-center">
-                  <div className="mx-auto aspect-square w-40 overflow-hidden rounded-full bg-muted">
-                    {m.photo_url ? <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" loading="lazy" /> : <div className="h-full w-full bg-gradient-to-br from-primary to-accent" />}
-                  </div>
-                  <h3 className="mt-4 font-display text-lg font-bold">{m.name}</h3>
-                  <p className="text-sm text-muted-foreground">{m.role}</p>
-                </div>
-              ))}
-            </div>
+      {/* CTA cards to sub-pages */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Explore</p>
+          <h2 className="mt-2 font-display text-4xl font-bold">Meet the people behind our work.</h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {[
+              { to: "/about/chairman", label: "Message from Chairman", desc: "A word from our Chairman on vision and direction." },
+              { to: "/about/board", label: "Board of Directors", desc: "The directors guiding our strategic decisions." },
+              { to: "/about/team", label: "Our Team", desc: "The full team driving our hydropower mission." },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="group rounded-xl border bg-card p-8 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+              >
+                <h3 className="font-display text-xl font-bold group-hover:text-primary">{link.label}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{link.desc}</p>
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  View <ChevronDown className="-rotate-90 h-4 w-4" />
+                </span>
+              </Link>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       <SiteFooter />
     </div>

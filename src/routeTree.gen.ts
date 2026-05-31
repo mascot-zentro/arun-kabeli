@@ -31,6 +31,9 @@ import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContactsRouteImport } from './routes/admin.contacts'
+import { Route as AboutChairmanRouteImport } from './routes/about.chairman'
+import { Route as AboutBoardRouteImport } from './routes/about.board'
+import { Route as AboutTeamRouteImport } from './routes/about.team'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -142,10 +145,25 @@ const AdminContactsRoute = AdminContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AboutChairmanRoute = AboutChairmanRouteImport.update({
+  id: '/chairman',
+  path: '/chairman',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutBoardRoute = AboutBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutTeamRoute = AboutTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AboutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/documents': typeof DocumentsRoute
@@ -153,6 +171,9 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/about/chairman': typeof AboutChairmanRoute
+  '/about/board': typeof AboutBoardRoute
+  '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
@@ -169,13 +190,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/contact': typeof ContactRoute
   '/documents': typeof DocumentsRoute
   '/gallery': typeof GalleryRoute
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/about/chairman': typeof AboutChairmanRoute
+  '/about/board': typeof AboutBoardRoute
+  '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
@@ -193,7 +217,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/documents': typeof DocumentsRoute
@@ -201,6 +225,9 @@ export interface FileRoutesById {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/about/chairman': typeof AboutChairmanRoute
+  '/about/board': typeof AboutBoardRoute
+  '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
@@ -227,6 +254,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/about/chairman'
+    | '/about/board'
+    | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
     | '/admin/documents'
@@ -250,6 +280,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/about/chairman'
+    | '/about/board'
+    | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
     | '/admin/documents'
@@ -274,6 +307,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/about/chairman'
+    | '/about/board'
+    | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
     | '/admin/documents'
@@ -291,7 +327,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  AboutRoute: typeof AboutRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   DocumentsRoute: typeof DocumentsRoute
@@ -457,8 +493,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContactsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/about/chairman': {
+      id: '/about/chairman'
+      path: '/chairman'
+      fullPath: '/about/chairman'
+      preLoaderRoute: typeof AboutChairmanRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/board': {
+      id: '/about/board'
+      path: '/board'
+      fullPath: '/about/board'
+      preLoaderRoute: typeof AboutBoardRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/team': {
+      id: '/about/team'
+      path: '/team'
+      fullPath: '/about/team'
+      preLoaderRoute: typeof AboutTeamRouteImport
+      parentRoute: typeof AboutRoute
+    }
   }
 }
+
+interface AboutRouteChildren {
+  AboutChairmanRoute: typeof AboutChairmanRoute
+  AboutBoardRoute: typeof AboutBoardRoute
+  AboutTeamRoute: typeof AboutTeamRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutChairmanRoute: AboutChairmanRoute,
+  AboutBoardRoute: AboutBoardRoute,
+  AboutTeamRoute: AboutTeamRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
 
 interface AdminRouteChildren {
   AdminContactsRoute: typeof AdminContactsRoute
@@ -514,7 +585,7 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  AboutRoute: AboutRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   DocumentsRoute: DocumentsRoute,

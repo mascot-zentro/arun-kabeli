@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, LogIn, LayoutDashboard, Sun, Moon } from "lucide-react";
+import { Menu, X, LogIn, LayoutDashboard, Sun, Moon, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo.webp";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { AboutDropdown, aboutLinks } from "@/routes/about";
 
 const nav = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
   { to: "/projects", label: "Projects" },
   { to: "/gallery", label: "Gallery" },
   { to: "/documents", label: "Documents" },
@@ -17,6 +16,7 @@ const nav = [
 
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const { user, isAdmin } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
   const adminLink = user && isAdmin
@@ -30,9 +30,15 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           <img src={logo} alt="Arun Kabeli Power logo" className="h-11 w-11 rounded-full bg-white/95 p-0.5" width={44} height={44} />
           <span className="hidden font-display text-base font-bold sm:block">Arun Kabeli Power</span>
         </Link>
+
+        {/* Desktop nav */}
         <nav className="hidden items-center gap-7 text-sm font-medium text-primary-foreground/90 lg:flex">
+          <Link to="/" className="transition hover:text-accent" activeProps={{ className: "text-accent" }} activeOptions={{ exact: true }}>
+            Home
+          </Link>
+          <AboutDropdown />
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="transition hover:text-accent" activeProps={{ className: "text-accent" }} activeOptions={{ exact: n.to === "/" }}>
+            <Link key={n.to} to={n.to} className="transition hover:text-accent" activeProps={{ className: "text-accent" }}>
               {n.label}
             </Link>
           ))}
@@ -52,6 +58,8 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             {adminLink.label}
           </Link>
         </nav>
+
+        {/* Mobile controls */}
         <div className="flex items-center gap-2 lg:hidden">
           <button
             onClick={toggleTheme}
@@ -60,15 +68,43 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-        <button onClick={() => setOpen(!open)} className="text-primary-foreground" aria-label="Menu">
-          {open ? <X /> : <Menu />}
-        </button>
+          <button onClick={() => setOpen(!open)} className="text-primary-foreground" aria-label="Menu">
+            {open ? <X /> : <Menu />}
+          </button>
         </div>
-
       </div>
+
+      {/* Mobile menu */}
       {open && (
         <div className="bg-primary px-6 pb-6 lg:hidden">
           <nav className="flex flex-col gap-3 text-primary-foreground">
+            <Link to="/" onClick={() => setOpen(false)} className="py-2 hover:text-accent">Home</Link>
+
+            {/* About accordion in mobile */}
+            <div>
+              <button
+                onClick={() => setMobileAboutOpen((v) => !v)}
+                className="flex w-full items-center justify-between py-2 hover:text-accent"
+              >
+                About
+                <ChevronDown className={`h-4 w-4 transition-transform ${mobileAboutOpen ? "rotate-180" : ""}`} />
+              </button>
+              {mobileAboutOpen && (
+                <div className="ml-4 flex flex-col gap-1 pb-1">
+                  {aboutLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => { setOpen(false); setMobileAboutOpen(false); }}
+                      className="py-2 text-sm text-primary-foreground/80 hover:text-accent"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {nav.map((n) => (
               <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="py-2 hover:text-accent">{n.label}</Link>
             ))}
