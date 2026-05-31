@@ -33,9 +33,19 @@ function AdminGallery() {
     qc.invalidateQueries({ queryKey: ["admin-gallery"] });
     toast.success("Uploaded");
   }
-  async function remove(id: string) {
-    if (!confirm("Delete?")) return;
-    await supabase.from("photos").delete().eq("id", id);
+  async function remove(id: string, url: string) {
+    if (!confirm("Delete this photo? This cannot be undone.")) return;
+    try {
+      const marker = "/storage/v1/object/public/photos/";
+      const idx = url.indexOf(marker);
+      if (idx !== -1) {
+        const path = url.substring(idx + marker.length);
+        await supabase.storage.from("photos").remove([path]);
+      }
+    } catch (e) { /* ignore storage errors, still remove row */ }
+    const { error } = await supabase.from("photos").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Photo deleted");
     qc.invalidateQueries({ queryKey: ["admin-gallery"] });
   }
   async function update(id: string, fields: any) {
