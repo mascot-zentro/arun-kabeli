@@ -178,3 +178,56 @@ function Home() {
     </div>
   );
 }
+
+function HeroSlider({ photos }: { photos: Array<{ id: string; url: string; alt_text: string | null; caption: string | null }> }) {
+  const [idx, setIdx] = useState(0);
+  const hasPhotos = photos.length > 0;
+  useEffect(() => {
+    if (photos.length < 2) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % photos.length), 4000);
+    return () => clearInterval(t);
+  }, [photos.length]);
+
+  if (!hasPhotos) {
+    return (
+      <div className="flex justify-center">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-accent/20 blur-3xl" />
+          <img src={logo} alt="Arun Kabeli Power emblem" className="relative h-72 w-72 rounded-full bg-white/95 p-6 shadow-2xl md:h-96 md:w-96" width={384} height={384} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center">
+      <div className="relative w-full max-w-md">
+        <div className="absolute -inset-4 rounded-2xl bg-accent/20 blur-3xl" />
+        <div className="relative aspect-square overflow-hidden rounded-2xl shadow-2xl ring-1 ring-primary-foreground/10">
+          {photos.map((p, i) => (
+            <img
+              key={p.id}
+              src={p.url}
+              alt={p.alt_text ?? p.caption ?? "Arun Kabeli Power"}
+              loading={i === 0 ? "eager" : "lazy"}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${i === idx ? "opacity-100" : "opacity-0"}`}
+            />
+          ))}
+          {photos.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+              {photos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIdx(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={`h-2 rounded-full transition-all ${i === idx ? "w-6 bg-accent" : "w-2 bg-primary-foreground/60"}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
