@@ -72,7 +72,7 @@ function AdminGallery() {
               <option value="">No project</option>
               {projects?.map((pr) => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
             </select>
-            <button onClick={() => remove(p.id)} className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded-md text-xs text-destructive hover:bg-destructive/10 py-1"><Trash2 className="h-3 w-3" />Delete</button>
+            <button onClick={() => remove(p.id, p.url)} className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded-md border border-destructive/30 text-xs text-destructive hover:bg-destructive hover:text-destructive-foreground py-1.5 font-medium"><Trash2 className="h-3 w-3" />Delete</button>
           </div>
         ))}
         {(!photos || photos.length === 0) && <p className="col-span-full py-8 text-center text-muted-foreground">No photos yet.</p>}
