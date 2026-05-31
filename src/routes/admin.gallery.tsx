@@ -33,9 +33,19 @@ function AdminGallery() {
     qc.invalidateQueries({ queryKey: ["admin-gallery"] });
     toast.success("Uploaded");
   }
-  async function remove(id: string) {
-    if (!confirm("Delete?")) return;
-    await supabase.from("photos").delete().eq("id", id);
+  async function remove(id: string, url: string) {
+    if (!confirm("Delete this photo? This cannot be undone.")) return;
+    try {
+      const marker = "/storage/v1/object/public/photos/";
+      const idx = url.indexOf(marker);
+      if (idx !== -1) {
+        const path = url.substring(idx + marker.length);
+        await supabase.storage.from("photos").remove([path]);
+      }
+    } catch (e) { /* ignore storage errors, still remove row */ }
+    const { error } = await supabase.from("photos").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Photo deleted");
     qc.invalidateQueries({ queryKey: ["admin-gallery"] });
   }
   async function update(id: string, fields: any) {
@@ -62,7 +72,7 @@ function AdminGallery() {
               <option value="">No project</option>
               {projects?.map((pr) => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
             </select>
-            <button onClick={() => remove(p.id)} className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded-md text-xs text-destructive hover:bg-destructive/10 py-1"><Trash2 className="h-3 w-3" />Delete</button>
+            <button onClick={() => remove(p.id, p.url)} className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded-md border border-destructive/30 text-xs text-destructive hover:bg-destructive hover:text-destructive-foreground py-1.5 font-medium"><Trash2 className="h-3 w-3" />Delete</button>
           </div>
         ))}
         {(!photos || photos.length === 0) && <p className="col-span-full py-8 text-center text-muted-foreground">No photos yet.</p>}
