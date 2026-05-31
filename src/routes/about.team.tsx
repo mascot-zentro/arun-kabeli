@@ -25,7 +25,7 @@ function TeamPage() {
   const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
+      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
   });
 
   const { data: pageContent } = useQuery({
@@ -123,12 +123,12 @@ function TeamPage() {
                     )}
                   </div>
                   {m.message && (
-                    <p className="mt-3 text-center text-xs italic text-muted-foreground line-clamp-3">
+                    <p className="mt-3 text-center text-xs italic text-muted-foreground">
                       "{m.message}"
                     </p>
                   )}
                   {m.bio && (
-                    <p className="mt-3 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                    <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
                       {m.bio}
                     </p>
                   )}
