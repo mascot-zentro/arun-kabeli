@@ -24,33 +24,12 @@ function BoardPage() {
   const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
-  });
-
-  const { data: pageContent } = useQuery({
-    queryKey: ["page-content", "about.board"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("page_content")
-        .select("content_json")
-        .eq("section_key", "about.board")
-        .maybeSingle();
-      if (!data?.content_json) return {};
-      const raw = data.content_json;
-      if (typeof raw === "string") {
-        try { return JSON.parse(raw) as Record<string, string>; } catch { return {}; }
-      }
-      return raw as Record<string, string>;
-    },
+      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
   });
 
   const boardMembers = team?.filter((m) =>
     BOARD_ROLES.some((r) => m.role?.toLowerCase().includes(r))
   ) ?? [];
-
-  const heroTitle = pageContent?.hero_title || "Board of Directors";
-  const heroEyebrow = pageContent?.hero_eyebrow || "About Us";
-  const introText = pageContent?.intro_text;
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,12 +37,14 @@ function BoardPage() {
 
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroEyebrow}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            {heroTitle}
+            Board of Directors
           </h1>
-          {introText && (
-            <p className="mt-4 max-w-2xl text-lg text-primary-foreground/80">{introText}</p>
+          {!isLoading && boardMembers.length > 0 && (
+            <p className="mt-3 text-lg text-primary-foreground/80">
+              {boardMembers.length} member{boardMembers.length !== 1 ? "s" : ""}
+            </p>
           )}
         </div>
       </section>
@@ -116,14 +97,12 @@ function BoardPage() {
                         </p>
                       </blockquote>
                     )}
-                    {m.bio ? (
+                    {m.bio && (
                       <div className="space-y-3 text-muted-foreground leading-relaxed">
                         {m.bio.split("\n").filter(Boolean).map((para, i) => (
                           <p key={i}>{para}</p>
                         ))}
                       </div>
-                    ) : (
-                      <p className="text-sm italic text-muted-foreground">No bio added yet.</p>
                     )}
                   </div>
                 </div>

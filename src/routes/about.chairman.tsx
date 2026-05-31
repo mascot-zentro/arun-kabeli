@@ -21,36 +21,15 @@ export const Route = createFileRoute("/about/chairman")({
 const CHAIRMAN_ROLES = ["chairman", "chairperson", "chair person", "chair"];
 
 function ChairmanPage() {
-  const { data: team, isLoading: teamLoading } = useQuery({
+  const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
-  });
-
-  const { data: pageContent } = useQuery({
-    queryKey: ["page-content", "about.chairman"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("page_content")
-        .select("content_json")
-        .eq("section_key", "about.chairman")
-        .maybeSingle();
-      if (!data?.content_json) return {};
-      const raw = data.content_json;
-      if (typeof raw === "string") {
-        try { return JSON.parse(raw) as Record<string, string>; } catch { return {}; }
-      }
-      return raw as Record<string, string>;
-    },
+      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
   });
 
   const chairman = team?.find((m) =>
     CHAIRMAN_ROLES.some((r) => m.role?.toLowerCase().includes(r))
   );
-
-  const heroTitle = pageContent?.hero_title || "Message from the Chairman";
-  const heroEyebrow = pageContent?.hero_eyebrow || "About Us";
-  const introText = pageContent?.intro_text;
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,12 +37,12 @@ function ChairmanPage() {
 
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroEyebrow}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            {heroTitle}
+            {chairman ? `Message from ${chairman.name}` : "Message from the Chairman"}
           </h1>
-          {introText && (
-            <p className="mt-4 max-w-2xl text-lg text-primary-foreground/80">{introText}</p>
+          {chairman?.role && (
+            <p className="mt-3 text-lg text-primary-foreground/80">{chairman.role}</p>
           )}
         </div>
       </section>
@@ -72,14 +51,14 @@ function ChairmanPage() {
 
       <section className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          {teamLoading && (
+          {isLoading && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               Loading…
             </div>
           )}
 
-          {!teamLoading && !chairman && (
+          {!isLoading && !chairman && (
             <p className="text-muted-foreground">
               No Chairman entry found. Add a team member with a "Chairman" role in the admin panel.
             </p>
@@ -87,7 +66,6 @@ function ChairmanPage() {
 
           {chairman && (
             <div className="grid gap-16 md:grid-cols-[280px_1fr]">
-              {/* Portrait */}
               <div className="flex flex-col items-center gap-4 md:items-start">
                 <div className="h-64 w-64 overflow-hidden rounded-2xl bg-muted shadow-lg">
                   {chairman.photo_url
@@ -103,7 +81,6 @@ function ChairmanPage() {
                 </div>
               </div>
 
-              {/* Message body */}
               <div>
                 {chairman.message && (
                   <blockquote className="relative mb-8 rounded-xl border-l-4 border-primary bg-primary/5 p-6">
@@ -114,14 +91,12 @@ function ChairmanPage() {
                     <footer className="mt-4 text-sm text-muted-foreground">— {chairman.name}</footer>
                   </blockquote>
                 )}
-                {chairman.bio ? (
+                {chairman.bio && (
                   <div className="space-y-4 text-muted-foreground md:text-lg leading-relaxed">
                     {chairman.bio.split("\n").filter(Boolean).map((para, i) => (
                       <p key={i}>{para}</p>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-muted-foreground italic">No bio added yet.</p>
                 )}
               </div>
             </div>

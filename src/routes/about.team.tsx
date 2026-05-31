@@ -28,23 +28,6 @@ function TeamPage() {
       (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
   });
 
-  const { data: pageContent } = useQuery({
-    queryKey: ["page-content", "about.team"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("page_content")
-        .select("content_json")
-        .eq("section_key", "about.team")
-        .maybeSingle();
-      if (!data?.content_json) return {};
-      const raw = data.content_json;
-      if (typeof raw === "string") {
-        try { return JSON.parse(raw) as Record<string, string>; } catch { return {}; }
-      }
-      return raw as Record<string, string>;
-    },
-  });
-
   const departments = team
     ? ["All", ...Array.from(new Set(team.map((m) => m.department).filter(Boolean) as string[]))]
     : ["All"];
@@ -53,22 +36,20 @@ function TeamPage() {
     ? (team ?? [])
     : (team ?? []).filter((m) => m.department === activeDept);
 
-  const heroTitle = pageContent?.hero_title || "Our Team";
-  const heroEyebrow = pageContent?.hero_eyebrow || "About Us";
-  const introText = pageContent?.intro_text;
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroEyebrow}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            {heroTitle}
+            Our Team
           </h1>
-          {introText && (
-            <p className="mt-4 max-w-2xl text-lg text-primary-foreground/80">{introText}</p>
+          {!isLoading && team && team.length > 0 && (
+            <p className="mt-3 text-lg text-primary-foreground/80">
+              {team.length} member{team.length !== 1 ? "s" : ""}
+            </p>
           )}
         </div>
       </section>
