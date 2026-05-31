@@ -28,6 +28,18 @@ function TeamPage() {
       (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content", "about.team"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("page_content")
+        .select("content_json")
+        .eq("section_key", "about.team")
+        .maybeSingle();
+      return (data?.content_json as Record<string, string>) ?? {};
+    },
+  });
+
   const departments = team
     ? ["All", ...Array.from(new Set(team.map((m) => m.department).filter(Boolean) as string[]))]
     : ["All"];
@@ -36,16 +48,23 @@ function TeamPage() {
     ? (team ?? [])
     : (team ?? []).filter((m) => m.department === activeDept);
 
+  const heroTitle = pageContent?.hero_title || "Our Team";
+  const heroEyebrow = pageContent?.hero_eyebrow || "About Us";
+  const introText = pageContent?.intro_text;
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroEyebrow}</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            Our Team
+            {heroTitle}
           </h1>
+          {introText && (
+            <p className="mt-4 max-w-2xl text-lg text-primary-foreground/80">{introText}</p>
+          )}
         </div>
       </section>
 

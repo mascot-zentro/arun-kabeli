@@ -21,15 +21,31 @@ export const Route = createFileRoute("/about/chairman")({
 const CHAIRMAN_ROLES = ["chairman", "chairperson", "chair person", "chair"];
 
 function ChairmanPage() {
-  const { data: team, isLoading } = useQuery({
+  const { data: team, isLoading: teamLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
       (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content", "about.chairman"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("page_content")
+        .select("content_json")
+        .eq("section_key", "about.chairman")
+        .maybeSingle();
+      return (data?.content_json as Record<string, string>) ?? {};
+    },
+  });
+
   const chairman = team?.find((m) =>
     CHAIRMAN_ROLES.some((r) => m.role?.toLowerCase().includes(r))
   );
+
+  const heroTitle = pageContent?.hero_title || "Message from the Chairman";
+  const heroEyebrow = pageContent?.hero_eyebrow || "About Us";
+  const introText = pageContent?.intro_text;
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,10 +53,13 @@ function ChairmanPage() {
 
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroEyebrow}</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            Message from the Chairman
+            {heroTitle}
           </h1>
+          {introText && (
+            <p className="mt-4 max-w-2xl text-lg text-primary-foreground/80">{introText}</p>
+          )}
         </div>
       </section>
 
@@ -48,14 +67,14 @@ function ChairmanPage() {
 
       <section className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          {isLoading && (
+          {teamLoading && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               Loading…
             </div>
           )}
 
-          {!isLoading && !chairman && (
+          {!teamLoading && !chairman && (
             <p className="text-muted-foreground">
               No Chairman entry found. Add a team member with a "Chairman" role in the admin panel.
             </p>
