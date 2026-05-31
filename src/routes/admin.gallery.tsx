@@ -6,19 +6,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Upload, Trash2 } from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
+
 export const Route = createFileRoute("/admin/gallery")({ component: AdminGallery });
 
 function AdminGallery() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
   const [uploading, setUploading] = useState(false);
   const { data: photos } = useQuery({
-    queryKey: ["admin-gallery"],
+    queryKey: ["admin-gallery", user?.id],
+    enabled: !loading && !!user,
     queryFn: async () => (await supabase.from("photos").select("*, projects(name)").order("sort_order")).data ?? [],
   });
   const { data: projects } = useQuery({
     queryKey: ["projects-select"],
+    enabled: !loading && !!user,
     queryFn: async () => (await supabase.from("projects").select("id, name")).data ?? [],
   });
+
 
   async function upload(files: FileList) {
     setUploading(true);
