@@ -54,12 +54,8 @@ function Home() {
               <Link to="/contact" className="rounded-md border border-primary-foreground/30 px-6 py-3 font-semibold text-primary-foreground transition hover:bg-primary-foreground/10">Partner With Us</Link>
             </div>
           </div>
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-accent/20 blur-3xl" />
-              <img src={logo} alt="Arun Kabeli Power emblem" className="relative h-72 w-72 rounded-full bg-white/95 p-6 shadow-2xl md:h-96 md:w-96" width={384} height={384} />
-            </div>
-          </div>
+          <HeroSlider photos={heroPhotos ?? []} />
+
         </div>
       </section>
 
