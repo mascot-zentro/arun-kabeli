@@ -21,6 +21,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const { data: heroPhotos } = useQuery({
+    queryKey: ["hero-photos"],
+    queryFn: async () => (await supabase.from("photos").select("id,url,alt_text,caption").order("created_at", { ascending: false }).limit(4)).data ?? [],
+  });
   const { data: projects } = useQuery({
     queryKey: ["projects-featured"],
     queryFn: async () => (await supabase.from("projects").select("*").eq("is_published", true).order("sort_order").limit(3)).data ?? [],
