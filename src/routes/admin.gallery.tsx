@@ -17,7 +17,7 @@ function AdminGallery() {
   const { data: photos } = useQuery({
     queryKey: ["admin-gallery", user?.id],
     enabled: !loading && !!user,
-    queryFn: async () => (await supabase.from("photos").select("*, projects(name)").order("sort_order")).data ?? [],
+    queryFn: async () => (await supabase.from("photos").select("*, projects!photos_project_id_fkey(name)").order("sort_order")).data ?? [],
   });
   const { data: projects } = useQuery({
     queryKey: ["projects-select"],
