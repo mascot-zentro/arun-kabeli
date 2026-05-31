@@ -102,7 +102,7 @@ const TEMPLATES: Template[] = [
 function AdminPages() {
   const qc = useQueryClient();
   const [active, setActive] = useState<string>(TEMPLATES[0].key);
-  const { data: sections } = useQuery({
+  const { data: sections, isLoading } = useQuery({
     queryKey: ["admin-pages"],
     queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
   });
@@ -143,6 +143,7 @@ function AdminPages() {
           template={tpl}
           initial={initial}
           existingId={existing?.id}
+          isLoadingData={isLoading}
           onSaved={() => qc.invalidateQueries({ queryKey: ["admin-pages"] })}
         />
       </div>
@@ -150,11 +151,23 @@ function AdminPages() {
   );
 }
 
-function SectionEditor({ template, initial, existingId, onSaved }: { template: Template; initial: Record<string, string>; existingId?: string; onSaved: () => void }) {
+function SectionEditor({ template, initial, existingId, isLoadingData, onSaved }: { template: Template; initial: Record<string, string>; existingId?: string; isLoadingData?: boolean; onSaved: () => void }) {
   const [values, setValues] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
+  const [initialised, setInitialised] = useState(false);
 
-  useEffect(() => setValues(initial), [template.key]); // reset on section change
+  // Reset when section changes OR when data first arrives from Supabase
+  useEffect(() => {
+    setValues(initial);
+    setInitialised(false);
+  }, [template.key]);
+
+  useEffect(() => {
+    if (!initialised && Object.keys(initial).length > 0) {
+      setValues(initial);
+      setInitialised(true);
+    }
+  }, [initial, initialised]);
 
   async function save() {
     setSaving(true);
@@ -165,6 +178,15 @@ function SectionEditor({ template, initial, existingId, onSaved }: { template: T
     setSaving(false);
     if (error) toast.error(error.message);
     else { toast.success("Saved"); onSaved(); }
+  }
+
+  if (isLoadingData) {
+    return (
+      <div className="rounded-xl border bg-card p-6 flex items-center gap-3 text-muted-foreground">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        Loading saved content…
+      </div>
+    );
   }
 
   return (
@@ -200,14 +222,25 @@ function SectionEditor({ template, initial, existingId, onSaved }: { template: T
         ))}
       </div>
 
-      <button
-        onClick={save}
-        disabled={saving}
-        className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        <Save className="h-4 w-4" />
-        {saving ? "Saving…" : "Save changes"}
-      </button>
+      <div className="mt-6 flex items-center gap-3">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          <Save className="h-4 w-4" />
+          {saving ? "Saving…" : "Save changes"}
+        </button>
+        {Object.keys(initial).length > 0 && (
+          <button
+            onClick={() => setValues(initial)}
+            disabled={saving}
+            className="rounded-md border px-4 py-2 text-sm text-muted-foreground transition hover:bg-secondary disabled:opacity-60"
+          >
+            Reset to saved
+          </button>
+        )}
+      </div>
     </div>
   );
 }
