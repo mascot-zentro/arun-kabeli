@@ -34,6 +34,20 @@ function Home() {
     queryKey: ["news-latest"],
     queryFn: async () => (await supabase.from("news").select("*").eq("is_published", true).order("published_at", { ascending: false }).limit(3)).data ?? [],
   });
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content"],
+    queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
+  });
+
+  const introC = (pageContent?.find((s) => s.section_key === "home.intro")?.content_json ?? {}) as Record<string, string>;
+  const statsC = (pageContent?.find((s) => s.section_key === "home.stats")?.content_json ?? {}) as Record<string, string>;
+
+  const stats = [
+    { k: statsC.stat1_value || "55", suffix: statsC.stat1_suffix || "MW",  v: statsC.stat1_label || "Installed Capacity" },
+    { k: statsC.stat2_value || "3",  suffix: statsC.stat2_suffix || "+",   v: statsC.stat2_label || "Active Projects" },
+    { k: statsC.stat3_value || "14", suffix: statsC.stat3_suffix || "yrs", v: statsC.stat3_label || "In Operation" },
+    { k: statsC.stat4_value || "100k", suffix: statsC.stat4_suffix || "+", v: statsC.stat4_label || "Households Served" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,12 +76,7 @@ function Home() {
       {/* STATS */}
       <section className="border-b bg-card py-16">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 sm:grid-cols-2 md:grid-cols-4">
-          {[
-            { k: "55", suffix: "MW", v: "Installed Capacity" },
-            { k: "3", suffix: "+", v: "Active Projects" },
-            { k: "14", suffix: "yrs", v: "In Operation" },
-            { k: "100k", suffix: "+", v: "Households Served" },
-          ].map((s) => (
+          {stats.map((s) => (
             <div key={s.v} className="text-center">
               <div className="font-mono text-5xl font-bold text-primary">{s.k}<span className="text-accent">{s.suffix}</span></div>
               <p className="mt-2 text-sm uppercase tracking-wider text-muted-foreground">{s.v}</p>
@@ -116,10 +125,10 @@ function Home() {
       <section className="bg-secondary/40 py-24">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-2 md:items-center">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Who We Are</p>
-            <h2 className="mt-2 font-display text-4xl font-bold md:text-5xl">Engineered for Nepal. Built to last.</h2>
-            <p className="mt-6 text-muted-foreground md:text-lg">Since 2011 we've engineered hydropower infrastructure that respects the landscapes it draws energy from — partnering with local communities, government, and global investors.</p>
-            <Link to="/about" className="mt-8 inline-flex items-center gap-2 font-semibold text-primary hover:text-accent">Learn more <ArrowRight className="h-4 w-4" /></Link>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">{introC.eyebrow || "Who We Are"}</p>
+            <h2 className="mt-2 font-display text-4xl font-bold md:text-5xl">{introC.title || "Engineered for Nepal. Built to last."}</h2>
+            <p className="mt-6 text-muted-foreground md:text-lg">{introC.body || "Since 2011 we've engineered hydropower infrastructure that respects the landscapes it draws energy from — partnering with local communities, government, and global investors."}</p>
+            <Link to={(introC.cta_link as any) || "/about"} className="mt-8 inline-flex items-center gap-2 font-semibold text-primary hover:text-accent">{introC.cta_label || "Learn more"} <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
