@@ -21,6 +21,7 @@ export const Route = createFileRoute("/about/team")({
 
 function TeamPage() {
   const [activeDept, setActiveDept] = useState<string>("All");
+
   const { data: sections } = useQuery({
     queryKey: ["page-content"],
     queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
@@ -31,10 +32,12 @@ function TeamPage() {
       (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
-  const content = (sections?.find((s) => s.section_key === "about.team")?.content_json ?? {}) as Record<string, string>;
-  const pageTitle = content.page_title || "Our Team";
-  const eyebrow = content.eyebrow || "About Us";
-  const intro = content.intro || "";
+  const c = (sections?.find((s) => s.section_key === "about.team")?.content_json ?? {}) as Record<string, string>;
+
+  // Support both old keys and new keys
+  const eyebrow   = c.eyebrow    || c.hero_eyebrow || "About Us";
+  const pageTitle = c.page_title || c.hero_title   || "Our Team";
+  const intro     = c.intro      || c.intro_text   || "";
 
   const departments = team
     ? ["All", ...Array.from(new Set(team.map((m) => m.department).filter(Boolean) as string[]))]

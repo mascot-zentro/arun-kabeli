@@ -29,12 +29,16 @@ function ChairmanPage() {
       (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
-  const content = (sections?.find((s) => s.section_key === "about.chairman")?.content_json ?? {}) as Record<string, string>;
-  const chairman = content.team_member_id ? team?.find((m) => m.id === content.team_member_id) : null;
-  const pageTitle = content.page_title || "Message from the Chairman";
-  const eyebrow = content.eyebrow || "About Us";
-  const pullQuote = content.pull_quote || "";
-  const body = content.body || "";
+  const c = (sections?.find((s) => s.section_key === "about.chairman")?.content_json ?? {}) as Record<string, string>;
+
+  // Support both old keys (hero_eyebrow, hero_title, intro_text) and new keys
+  const eyebrow    = c.eyebrow      || c.hero_eyebrow || "About Us";
+  const pageTitle  = c.page_title   || c.hero_title   || "Message from the Chairman";
+  const pullQuote  = c.pull_quote   || c.intro_text   || "";
+  const body       = c.body        || "";
+  const memberId   = c.team_member_id || "";
+
+  const chairman = memberId ? team?.find((m) => m.id === memberId) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,13 +58,13 @@ function ChairmanPage() {
               Loading…
             </div>
           )}
-          {!isLoading && !chairman && !body && (
+          {!isLoading && !chairman && !body && !pullQuote && (
             <div className="rounded-xl border border-dashed bg-secondary/30 p-10 text-center text-muted-foreground">
               <p className="font-medium">No content yet.</p>
               <p className="mt-1 text-sm">Go to <strong>Admin → Page content → About — Message from Chairman</strong> to set it up.</p>
             </div>
           )}
-          {(chairman || body) && (
+          {(chairman || body || pullQuote) && (
             <div className="grid gap-16 md:grid-cols-[280px_1fr]">
               {chairman && (
                 <div className="flex flex-col items-center gap-4 md:items-start">

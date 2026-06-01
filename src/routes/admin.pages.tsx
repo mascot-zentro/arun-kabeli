@@ -64,9 +64,9 @@ const TEMPLATES: Template[] = [
         type: "team_member_picker",
         hint: "Select the team member to feature. Their name, role, and photo are pulled from the Team admin.",
       },
-      { key: "page_title", label: "Page heading", type: "text", placeholder: "Message from the Chairman" },
-      { key: "eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
-      { key: "pull_quote", label: "Pull quote (shown in blockquote)", type: "textarea", placeholder: "A word from our Chairman…" },
+      { key: "hero_title", label: "Page heading", type: "text", placeholder: "Message from the Chairman" },
+      { key: "hero_eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
+      { key: "intro_text", label: "Pull quote (shown in blockquote)", type: "textarea", placeholder: "A word from our Chairman…" },
       { key: "body", label: "Full message / body text (paragraphs separated by blank lines)", type: "textarea" },
     ],
   },
@@ -75,8 +75,8 @@ const TEMPLATES: Template[] = [
     label: "About — Board of Directors",
     description: "Hero section on the Board of Directors page.",
     fields: [
-      { key: "page_title", label: "Page heading", type: "text", placeholder: "Board of Directors" },
-      { key: "eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
+      { key: "hero_title", label: "Page heading", type: "text", placeholder: "Board of Directors" },
+      { key: "hero_eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
       { key: "intro", label: "Intro paragraph (shown above the board members)", type: "textarea", placeholder: "Our board brings together expertise in…" },
       {
         key: "member_ids",
@@ -91,9 +91,9 @@ const TEMPLATES: Template[] = [
     label: "About — Our Team",
     description: "Hero section on the Our Team page.",
     fields: [
-      { key: "page_title", label: "Page heading", type: "text", placeholder: "Our Team" },
-      { key: "eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
-      { key: "intro", label: "Intro paragraph (shown above the team grid)", type: "textarea", placeholder: "The people driving our mission…" },
+      { key: "hero_title", label: "Page heading", type: "text", placeholder: "Our Team" },
+      { key: "hero_eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
+      { key: "intro_text", label: "Intro paragraph (shown above the team grid)", type: "textarea", placeholder: "The people driving our mission…" },
     ],
   },
   {

@@ -29,11 +29,14 @@ function BoardPage() {
       (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
-  const content = (sections?.find((s) => s.section_key === "about.board")?.content_json ?? {}) as Record<string, string>;
-  const pageTitle = content.page_title || "Board of Directors";
-  const eyebrow = content.eyebrow || "About Us";
-  const intro = content.intro || "";
-  const memberIds = content.member_ids ? content.member_ids.split(",").filter(Boolean) : [];
+  const c = (sections?.find((s) => s.section_key === "about.board")?.content_json ?? {}) as Record<string, string>;
+
+  // Support both old keys and new keys
+  const eyebrow    = c.eyebrow     || c.hero_eyebrow || "About Us";
+  const pageTitle  = c.page_title  || c.hero_title   || "Board of Directors";
+  const intro      = c.intro       || c.intro_text   || "";
+  const memberIds  = c.member_ids  ? c.member_ids.split(",").filter(Boolean) : [];
+
   type TeamMember = NonNullable<typeof team>[number];
   const boardMembers: TeamMember[] = memberIds.length > 0
     ? memberIds.map((id) => team?.find((m) => m.id === id)).filter((m): m is TeamMember => m !== undefined)
