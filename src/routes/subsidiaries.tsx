@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { AboutSubNav } from "./about";
 import { ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/subsidiaries")({
@@ -12,9 +11,9 @@ export const Route = createFileRoute("/subsidiaries")({
       { title: "Subsidiaries — Arun Kabeli Power Limited" },
       { name: "description", content: "Subsidiary companies of Arun Kabeli Power Limited." },
       { property: "og:title", content: "Subsidiaries — Arun Kabeli Power" },
-      { property: "og:url", content: "/about/subsidiaries" },
+      { property: "og:url", content: "/subsidiaries" },
     ],
-    links: [{ rel: "canonical", href: "/about/subsidiaries" }],
+    links: [{ rel: "canonical", href: "/subsidiaries" }],
   }),
   component: SubsidiariesPage,
 });
