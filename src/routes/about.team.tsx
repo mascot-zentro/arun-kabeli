@@ -21,72 +21,56 @@ export const Route = createFileRoute("/about/team")({
 
 function TeamPage() {
   const [activeDept, setActiveDept] = useState<string>("All");
-
+  const { data: sections } = useQuery({
+    queryKey: ["page-content"],
+    queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
+  });
   const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
+      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
+
+  const content = (sections?.find((s) => s.section_key === "about.team")?.content_json ?? {}) as Record<string, string>;
+  const pageTitle = content.page_title || "Our Team";
+  const eyebrow = content.eyebrow || "About Us";
+  const intro = content.intro || "";
 
   const departments = team
     ? ["All", ...Array.from(new Set(team.map((m) => m.department).filter(Boolean) as string[]))]
     : ["All"];
-
-  const filtered = activeDept === "All"
-    ? (team ?? [])
-    : (team ?? []).filter((m) => m.department === activeDept);
+  const filtered = activeDept === "All" ? (team ?? []) : (team ?? []).filter((m) => m.department === activeDept);
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            Our Team
-          </h1>
-          {!isLoading && team && team.length > 0 && (
-            <p className="mt-3 text-lg text-primary-foreground/80">
-              {team.length} member{team.length !== 1 ? "s" : ""}
-            </p>
-          )}
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{eyebrow}</p>
+          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">{pageTitle}</h1>
         </div>
       </section>
-
       <AboutSubNav />
-
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-6">
+          {intro && <p className="mb-10 max-w-3xl text-lg text-muted-foreground leading-relaxed">{intro}</p>}
           {departments.length > 2 && (
             <div className="mb-10 flex flex-wrap gap-2">
               {departments.map((dept) => (
-                <button
-                  key={dept}
-                  onClick={() => setActiveDept(dept)}
-                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                    activeDept === dept
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary"
-                  }`}
-                >
+                <button key={dept} onClick={() => setActiveDept(dept)}
+                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${activeDept === dept ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary"}`}>
                   {dept}
                 </button>
               ))}
             </div>
           )}
-
           {isLoading && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               Loading…
             </div>
           )}
-
-          {!isLoading && filtered.length === 0 && (
-            <p className="text-muted-foreground">No team members found.</p>
-          )}
-
+          {!isLoading && filtered.length === 0 && <p className="text-muted-foreground">No team members found.</p>}
           {filtered.length > 0 && (
             <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {filtered.map((m) => (
@@ -99,27 +83,16 @@ function TeamPage() {
                   <div className="mt-4 text-center">
                     <h3 className="font-display text-lg font-bold">{m.name}</h3>
                     <p className="text-sm font-medium text-primary">{m.role}</p>
-                    {m.department && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">{m.department}</p>
-                    )}
+                    {m.department && <p className="mt-0.5 text-xs text-muted-foreground">{m.department}</p>}
                   </div>
-                  {m.message && (
-                    <p className="mt-3 text-center text-xs italic text-muted-foreground">
-                      "{m.message}"
-                    </p>
-                  )}
-                  {m.bio && (
-                    <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                      {m.bio}
-                    </p>
-                  )}
+                  {m.message && <p className="mt-3 text-center text-xs italic text-muted-foreground line-clamp-3">"{m.message}"</p>}
+                  {m.bio && <p className="mt-3 text-xs text-muted-foreground line-clamp-3 leading-relaxed">{m.bio}</p>}
                 </div>
               ))}
             </div>
           )}
         </div>
       </section>
-
       <SiteFooter />
     </div>
   );

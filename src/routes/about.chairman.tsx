@@ -18,37 +18,34 @@ export const Route = createFileRoute("/about/chairman")({
   component: ChairmanPage,
 });
 
-const CHAIRMAN_ROLES = ["chairman", "chairperson", "chair person", "chair"];
-
 function ChairmanPage() {
+  const { data: sections } = useQuery({
+    queryKey: ["page-content"],
+    queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
+  });
   const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
+      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
-  const chairman = team?.find((m) =>
-    CHAIRMAN_ROLES.some((r) => m.role?.toLowerCase().includes(r))
-  );
+  const content = (sections?.find((s) => s.section_key === "about.chairman")?.content_json ?? {}) as Record<string, string>;
+  const chairman = content.team_member_id ? team?.find((m) => m.id === content.team_member_id) : null;
+  const pageTitle = content.page_title || "Message from the Chairman";
+  const eyebrow = content.eyebrow || "About Us";
+  const pullQuote = content.pull_quote || "";
+  const body = content.body || "";
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-
       <section className="animated-mesh pb-20 pt-40 text-primary-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">About Us</p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">
-            {chairman ? `Message from ${chairman.name}` : "Message from the Chairman"}
-          </h1>
-          {chairman?.role && (
-            <p className="mt-3 text-lg text-primary-foreground/80">{chairman.role}</p>
-          )}
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{eyebrow}</p>
+          <h1 className="mt-3 max-w-3xl font-display text-5xl font-bold md:text-6xl">{pageTitle}</h1>
         </div>
       </section>
-
       <AboutSubNav />
-
       <section className="py-20">
         <div className="mx-auto max-w-5xl px-6">
           {isLoading && (
@@ -57,45 +54,39 @@ function ChairmanPage() {
               Loading…
             </div>
           )}
-
-          {!isLoading && !chairman && (
-            <p className="text-muted-foreground">
-              No Chairman entry found. Add a team member with a "Chairman" role in the admin panel.
-            </p>
+          {!isLoading && !chairman && !body && (
+            <div className="rounded-xl border border-dashed bg-secondary/30 p-10 text-center text-muted-foreground">
+              <p className="font-medium">No content yet.</p>
+              <p className="mt-1 text-sm">Go to <strong>Admin → Page content → About — Message from Chairman</strong> to set it up.</p>
+            </div>
           )}
-
-          {chairman && (
+          {(chairman || body) && (
             <div className="grid gap-16 md:grid-cols-[280px_1fr]">
-              <div className="flex flex-col items-center gap-4 md:items-start">
-                <div className="h-64 w-64 overflow-hidden rounded-2xl bg-muted shadow-lg">
-                  {chairman.photo_url
-                    ? <img src={chairman.photo_url} alt={chairman.name} className="h-full w-full object-cover" />
-                    : <div className="h-full w-full bg-gradient-to-br from-primary to-accent" />}
+              {chairman && (
+                <div className="flex flex-col items-center gap-4 md:items-start">
+                  <div className="h-64 w-64 overflow-hidden rounded-2xl bg-muted shadow-lg">
+                    {chairman.photo_url
+                      ? <img src={chairman.photo_url} alt={chairman.name} className="h-full w-full object-cover" />
+                      : <div className="h-full w-full bg-gradient-to-br from-primary to-accent" />}
+                  </div>
+                  <div className="text-center md:text-left">
+                    <p className="font-display text-xl font-bold">{chairman.name}</p>
+                    <p className="text-sm font-medium text-primary">{chairman.role}</p>
+                    {chairman.department && <p className="text-xs text-muted-foreground">{chairman.department}</p>}
+                  </div>
                 </div>
-                <div className="text-center md:text-left">
-                  <p className="font-display text-xl font-bold">{chairman.name}</p>
-                  <p className="text-sm font-medium text-primary">{chairman.role}</p>
-                  {chairman.department && (
-                    <p className="text-xs text-muted-foreground">{chairman.department}</p>
-                  )}
-                </div>
-              </div>
-
+              )}
               <div>
-                {chairman.message && (
+                {pullQuote && (
                   <blockquote className="relative mb-8 rounded-xl border-l-4 border-primary bg-primary/5 p-6">
                     <span className="absolute -left-1 -top-3 font-display text-6xl leading-none text-primary/30">"</span>
-                    <p className="font-display text-xl font-medium italic leading-relaxed text-foreground">
-                      {chairman.message}
-                    </p>
-                    <footer className="mt-4 text-sm text-muted-foreground">— {chairman.name}</footer>
+                    <p className="font-display text-xl font-medium italic leading-relaxed text-foreground">{pullQuote}</p>
+                    {chairman && <footer className="mt-4 text-sm text-muted-foreground">— {chairman.name}</footer>}
                   </blockquote>
                 )}
-                {chairman.bio && (
+                {body && (
                   <div className="space-y-4 text-muted-foreground md:text-lg leading-relaxed">
-                    {chairman.bio.split("\n").filter(Boolean).map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
+                    {body.split("\n").filter(Boolean).map((para, i) => <p key={i}>{para}</p>)}
                   </div>
                 )}
               </div>
@@ -103,7 +94,6 @@ function ChairmanPage() {
           )}
         </div>
       </section>
-
       <SiteFooter />
     </div>
   );
