@@ -141,7 +141,7 @@ function AdminPages() {
   const qc = useQueryClient();
   const [active, setActive] = useState<string>(TEMPLATES[0].key);
   const { data: sections } = useQuery({
-    queryKey: ["admin-pages"],
+    queryKey: ["page-content"],
     queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
   });
   const { data: teamMembers } = useQuery({
@@ -185,7 +185,7 @@ function AdminPages() {
           initial={initial}
           existingId={existing?.id}
           teamMembers={teamMembers ?? []}
-          onSaved={() => qc.invalidateQueries({ queryKey: ["admin-pages"] })}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["page-content"] })}
         />
       </div>
     </div>
