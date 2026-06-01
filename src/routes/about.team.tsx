@@ -54,12 +54,9 @@ function MemberModal({ member, onClose }: { member: Member; onClose: () => void 
           <X className="h-4 w-4" />
         </button>
 
-        {/* Header band */}
-        <div className="relative h-24 w-full bg-gradient-to-r from-primary to-accent rounded-t-2xl" />
-
-        {/* Avatar — overlapping the band */}
-        <div className="mx-8 -mt-12">
-          <div className="h-24 w-24 overflow-hidden rounded-2xl border-4 border-card bg-muted shadow-lg">
+        {/* Header band with centered avatar overlapping bottom */}
+        <div className="relative h-32 w-full bg-gradient-to-r from-primary to-accent rounded-t-2xl flex items-end justify-center pb-0">
+          <div className="absolute -bottom-10 h-20 w-20 overflow-hidden rounded-full border-4 border-card bg-muted shadow-lg">
             {member.photo_url
               ? <img src={member.photo_url} alt={member.name} className="h-full w-full object-cover" />
               : <div className="h-full w-full bg-gradient-to-br from-primary to-accent" />}
@@ -67,7 +64,7 @@ function MemberModal({ member, onClose }: { member: Member; onClose: () => void 
         </div>
 
         {/* Content */}
-        <div className="px-8 pb-8 pt-4">
+        <div className="px-8 pb-8 pt-14 text-center">
           <div className="mb-6">
             <h2 className="font-display text-2xl font-bold">{member.name}</h2>
             {member.role && (
@@ -79,6 +76,7 @@ function MemberModal({ member, onClose }: { member: Member; onClose: () => void 
               </span>
             )}
           </div>
+          <div className="mb-6 border-b" />
 
           {member.message && (
             <blockquote className="relative mb-6 rounded-xl border-l-4 border-primary bg-primary/5 px-5 py-4">
@@ -91,7 +89,7 @@ function MemberModal({ member, onClose }: { member: Member; onClose: () => void 
           )}
 
           {member.bio && (
-            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed text-left">
               {member.bio.split("\n").filter(Boolean).map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
