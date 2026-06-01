@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { AboutSubNav } from "./about";
 import { ExternalLink } from "lucide-react";
 
-export const Route = createFileRoute("/about/subsidiaries")({
+export const Route = createFileRoute("/subsidiaries")({
   head: () => ({
     meta: [
       { title: "Subsidiaries — Arun Kabeli Power Limited" },
