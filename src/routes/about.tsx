@@ -43,22 +43,41 @@ export function AboutDropdown() {
   }, []);
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 transition hover:text-accent"
+    <div ref={ref} className="relative flex items-center gap-0.5">
+      {/* "About" navigates to /about; chevron opens the sub-page dropdown */}
+      <Link
+        to="/about"
+        className="transition hover:text-accent"
+        activeProps={{ className: "text-accent" }}
+        activeOptions={{ exact: false }}
       >
         About
+      </Link>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="About sub-pages"
+        className="rounded p-0.5 transition hover:text-accent"
+      >
         <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border bg-card shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border bg-card shadow-lg">
+          <Link
+            to="/about"
+            onClick={() => setOpen(false)}
+            className="block border-b px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-primary"
+            activeProps={{ className: "text-primary bg-primary/5" }}
+            activeOptions={{ exact: true }}
+          >
+            About Us
+          </Link>
           {aboutLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
               className="block px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
+              activeProps={{ className: "text-primary bg-primary/5" }}
             >
               {link.label}
             </Link>

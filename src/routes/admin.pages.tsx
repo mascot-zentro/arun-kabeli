@@ -88,8 +88,7 @@ const TEMPLATES: Template[] = [
       },
       { key: "hero_title", label: "Page heading", type: "text", placeholder: "Message from the Chairman" },
       { key: "hero_eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
-      { key: "intro_text", label: "Pull quote (shown in blockquote)", type: "textarea", placeholder: "A word from our Chairman…" },
-      { key: "body", label: "Full message / body text (paragraphs separated by blank lines)", type: "textarea" },
+      { key: "body", label: "Message body (paragraphs separated by blank lines)", type: "textarea" },
     ],
   },
   {

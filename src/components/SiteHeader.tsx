@@ -81,15 +81,24 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           <nav className="flex flex-col gap-3 text-primary-foreground">
             <Link to="/" onClick={() => setOpen(false)} className="py-2 hover:text-accent">Home</Link>
 
-            {/* About accordion in mobile */}
+            {/* About — link + accordion for sub-pages */}
             <div>
-              <button
-                onClick={() => setMobileAboutOpen((v) => !v)}
-                className="flex w-full items-center justify-between py-2 hover:text-accent"
-              >
-                About
-                <ChevronDown className={`h-4 w-4 transition-transform ${mobileAboutOpen ? "rotate-180" : ""}`} />
-              </button>
+              <div className="flex items-center justify-between">
+                <Link
+                  to="/about"
+                  onClick={() => { setOpen(false); setMobileAboutOpen(false); }}
+                  className="py-2 hover:text-accent"
+                >
+                  About
+                </Link>
+                <button
+                  onClick={() => setMobileAboutOpen((v) => !v)}
+                  aria-label="Show about sub-pages"
+                  className="p-2 hover:text-accent"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${mobileAboutOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
               {mobileAboutOpen && (
                 <div className="ml-4 flex flex-col gap-1 pb-1">
                   {aboutLinks.map((link) => (
