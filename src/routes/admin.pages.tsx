@@ -210,11 +210,12 @@ function SectionEditor({
         <span>Editing <strong className="text-foreground">{template.label}</strong>. Leave a field empty to hide it on the site.</span>
       </div>
       <div className="space-y-4">
-        {template.fields.map((f) => (
-          <label key={f.key} className="block text-sm">
-            <span className="font-medium">{f.label}</span>
-            {f.hint && <span className="block text-xs text-muted-foreground">{f.hint}</span>}
-            {f.type === "team_member_picker" ? (
+        {template.fields.map((f) =>
+          f.type === "team_member_picker" ? (
+            // Must NOT be a <label> — clicking label text would trigger the first button inside
+            <div key={f.key} className="block text-sm">
+              <span className="block font-medium">{f.label}</span>
+              {f.hint && <span className="block text-xs text-muted-foreground">{f.hint}</span>}
               <TeamMemberPicker
                 fieldKey={f.key}
                 value={values[f.key] ?? ""}
@@ -222,25 +223,31 @@ function SectionEditor({
                 members={teamMembers}
                 multi={f.key === "member_ids"}
               />
-            ) : f.type === "textarea" ? (
-              <textarea
-                rows={5}
-                placeholder={f.placeholder}
-                value={values[f.key] ?? ""}
-                onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                className="mt-1 w-full rounded-md border bg-background px-3 py-2"
-              />
-            ) : (
-              <input
-                type="text"
-                placeholder={f.placeholder}
-                value={values[f.key] ?? ""}
-                onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                className="mt-1 w-full rounded-md border bg-background px-3 py-2"
-              />
-            )}
-          </label>
-        ))}
+            </div>
+          ) : (
+            <label key={f.key} className="block text-sm">
+              <span className="font-medium">{f.label}</span>
+              {f.hint && <span className="block text-xs text-muted-foreground">{f.hint}</span>}
+              {f.type === "textarea" ? (
+                <textarea
+                  rows={5}
+                  placeholder={f.placeholder}
+                  value={values[f.key] ?? ""}
+                  onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+                  className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+                />
+              ) : (
+                <input
+                  type="text"
+                  placeholder={f.placeholder}
+                  value={values[f.key] ?? ""}
+                  onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+                  className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+                />
+              )}
+            </label>
+          )
+        )}
       </div>
       <button
         onClick={save}
