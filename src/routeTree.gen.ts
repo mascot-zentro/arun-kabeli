@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubsidiariesRouteImport } from './routes/subsidiaries'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as NewsRouteImport } from './routes/news'
@@ -33,10 +34,14 @@ import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContactsRouteImport } from './routes/admin.contacts'
 import { Route as AboutTeamRouteImport } from './routes/about.team'
-import { Route as AboutSubsidiariesRouteImport } from './routes/about.subsidiaries'
 import { Route as AboutChairmanRouteImport } from './routes/about.chairman'
 import { Route as AboutBoardRouteImport } from './routes/about.board'
 
+const SubsidiariesRoute = SubsidiariesRouteImport.update({
+  id: '/subsidiaries',
+  path: '/subsidiaries',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -157,11 +162,6 @@ const AboutTeamRoute = AboutTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AboutRoute,
 } as any)
-const AboutSubsidiariesRoute = AboutSubsidiariesRouteImport.update({
-  id: '/subsidiaries',
-  path: '/subsidiaries',
-  getParentRoute: () => AboutRoute,
-} as any)
 const AboutChairmanRoute = AboutChairmanRouteImport.update({
   id: '/chairman',
   path: '/chairman',
@@ -183,9 +183,9 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
   '/about/chairman': typeof AboutChairmanRoute
-  '/about/subsidiaries': typeof AboutSubsidiariesRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -211,9 +211,9 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
   '/about/chairman': typeof AboutChairmanRoute
-  '/about/subsidiaries': typeof AboutSubsidiariesRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -241,9 +241,9 @@ export interface FileRoutesById {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
   '/about/chairman': typeof AboutChairmanRoute
-  '/about/subsidiaries': typeof AboutSubsidiariesRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -272,9 +272,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/subsidiaries'
     | '/about/board'
     | '/about/chairman'
-    | '/about/subsidiaries'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -300,9 +300,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/subsidiaries'
     | '/about/board'
     | '/about/chairman'
-    | '/about/subsidiaries'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -329,9 +329,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
+    | '/subsidiaries'
     | '/about/board'
     | '/about/chairman'
-    | '/about/subsidiaries'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -359,10 +359,18 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRouteWithChildren
   ProjectsRoute: typeof ProjectsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SubsidiariesRoute: typeof SubsidiariesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/subsidiaries': {
+      id: '/subsidiaries'
+      path: '/subsidiaries'
+      fullPath: '/subsidiaries'
+      preLoaderRoute: typeof SubsidiariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -531,13 +539,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutTeamRouteImport
       parentRoute: typeof AboutRoute
     }
-    '/about/subsidiaries': {
-      id: '/about/subsidiaries'
-      path: '/subsidiaries'
-      fullPath: '/about/subsidiaries'
-      preLoaderRoute: typeof AboutSubsidiariesRouteImport
-      parentRoute: typeof AboutRoute
-    }
     '/about/chairman': {
       id: '/about/chairman'
       path: '/chairman'
@@ -558,14 +559,12 @@ declare module '@tanstack/react-router' {
 interface AboutRouteChildren {
   AboutBoardRoute: typeof AboutBoardRoute
   AboutChairmanRoute: typeof AboutChairmanRoute
-  AboutSubsidiariesRoute: typeof AboutSubsidiariesRoute
   AboutTeamRoute: typeof AboutTeamRoute
 }
 
 const AboutRouteChildren: AboutRouteChildren = {
   AboutBoardRoute: AboutBoardRoute,
   AboutChairmanRoute: AboutChairmanRoute,
-  AboutSubsidiariesRoute: AboutSubsidiariesRoute,
   AboutTeamRoute: AboutTeamRoute,
 }
 
@@ -635,6 +634,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRouteWithChildren,
   ProjectsRoute: ProjectsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SubsidiariesRoute: SubsidiariesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
