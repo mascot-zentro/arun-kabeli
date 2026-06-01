@@ -34,8 +34,9 @@ function BoardPage() {
   const eyebrow = content.eyebrow || "About Us";
   const intro = content.intro || "";
   const memberIds = content.member_ids ? content.member_ids.split(",").filter(Boolean) : [];
-  const boardMembers = memberIds.length > 0
-    ? memberIds.map((id) => team?.find((m) => m.id === id)).filter(Boolean)
+  type TeamMember = NonNullable<typeof team>[number];
+  const boardMembers: TeamMember[] = memberIds.length > 0
+    ? memberIds.map((id) => team?.find((m) => m.id === id)).filter((m): m is TeamMember => m !== undefined)
     : [];
 
   return (
