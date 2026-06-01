@@ -22,6 +22,7 @@ export const aboutLinks = [
   { to: "/about/chairman", label: "Message from Chairman" },
   { to: "/about/board", label: "Board of Directors" },
   { to: "/about/team", label: "Our Team" },
+  { to: "/about/subsidiaries", label: "Subsidiaries" },
 ] as const;
 
 export function AboutSubNav() {
