@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouter, useRouterState, redirect } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, FileText, FolderKanban, Image, Users, Newspaper, FileEdit, Inbox, LogOut, KeyRound } from "lucide-react";
+import { LayoutDashboard, FileText, FolderKanban, Image, Users, Newspaper, FileEdit, Inbox, LogOut, KeyRound, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -13,6 +13,7 @@ const nav = [
   { to: "/admin/documents", label: "Documents", icon: FileText },
   { to: "/admin/gallery", label: "Gallery", icon: Image },
   { to: "/admin/team", label: "Team", icon: Users },
+  { to: "/admin/subsidiaries", label: "Subsidiaries", icon: Building2 },
   { to: "/admin/news", label: "News", icon: Newspaper },
   { to: "/admin/pages", label: "Page Content", icon: FileEdit },
   { to: "/admin/contacts", label: "Contacts", icon: Inbox },
