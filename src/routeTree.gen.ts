@@ -31,9 +31,9 @@ import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContactsRouteImport } from './routes/admin.contacts'
+import { Route as AboutTeamRouteImport } from './routes/about.team'
 import { Route as AboutChairmanRouteImport } from './routes/about.chairman'
 import { Route as AboutBoardRouteImport } from './routes/about.board'
-import { Route as AboutTeamRouteImport } from './routes/about.team'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -145,6 +145,11 @@ const AdminContactsRoute = AdminContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AboutTeamRoute = AboutTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AboutRoute,
+} as any)
 const AboutChairmanRoute = AboutChairmanRouteImport.update({
   id: '/chairman',
   path: '/chairman',
@@ -153,11 +158,6 @@ const AboutChairmanRoute = AboutChairmanRouteImport.update({
 const AboutBoardRoute = AboutBoardRouteImport.update({
   id: '/board',
   path: '/board',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutTeamRoute = AboutTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
   getParentRoute: () => AboutRoute,
 } as any)
 
@@ -171,8 +171,8 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/about/chairman': typeof AboutChairmanRoute
   '/about/board': typeof AboutBoardRoute
+  '/about/chairman': typeof AboutChairmanRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -197,8 +197,8 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/about/chairman': typeof AboutChairmanRoute
   '/about/board': typeof AboutBoardRoute
+  '/about/chairman': typeof AboutChairmanRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -225,8 +225,8 @@ export interface FileRoutesById {
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/about/chairman': typeof AboutChairmanRoute
   '/about/board': typeof AboutBoardRoute
+  '/about/chairman': typeof AboutChairmanRoute
   '/about/team': typeof AboutTeamRoute
   '/admin/contacts': typeof AdminContactsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -254,8 +254,8 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
-    | '/about/chairman'
     | '/about/board'
+    | '/about/chairman'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -280,8 +280,8 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
-    | '/about/chairman'
     | '/about/board'
+    | '/about/chairman'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -307,8 +307,8 @@ export interface FileRouteTypes {
     | '/news'
     | '/projects'
     | '/sitemap.xml'
-    | '/about/chairman'
     | '/about/board'
+    | '/about/chairman'
     | '/about/team'
     | '/admin/contacts'
     | '/admin/dashboard'
@@ -493,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContactsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/about/team': {
+      id: '/about/team'
+      path: '/team'
+      fullPath: '/about/team'
+      preLoaderRoute: typeof AboutTeamRouteImport
+      parentRoute: typeof AboutRoute
+    }
     '/about/chairman': {
       id: '/about/chairman'
       path: '/chairman'
@@ -507,25 +514,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutBoardRouteImport
       parentRoute: typeof AboutRoute
     }
-    '/about/team': {
-      id: '/about/team'
-      path: '/team'
-      fullPath: '/about/team'
-      preLoaderRoute: typeof AboutTeamRouteImport
-      parentRoute: typeof AboutRoute
-    }
   }
 }
 
 interface AboutRouteChildren {
-  AboutChairmanRoute: typeof AboutChairmanRoute
   AboutBoardRoute: typeof AboutBoardRoute
+  AboutChairmanRoute: typeof AboutChairmanRoute
   AboutTeamRoute: typeof AboutTeamRoute
 }
 
 const AboutRouteChildren: AboutRouteChildren = {
-  AboutChairmanRoute: AboutChairmanRoute,
   AboutBoardRoute: AboutBoardRoute,
+  AboutChairmanRoute: AboutChairmanRoute,
   AboutTeamRoute: AboutTeamRoute,
 }
 
@@ -597,3 +597,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
