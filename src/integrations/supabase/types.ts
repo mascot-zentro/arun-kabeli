@@ -286,6 +286,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subsidiaries: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          images: string[]
+          is_visible: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[]
+          is_visible?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[]
+          is_visible?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           bio: string | null
