@@ -125,10 +125,17 @@ function TeamPage() {
   const pageTitle = c.page_title || c.hero_title   || "Our Team";
   const intro     = c.intro      || c.intro_text   || "";
 
-  const departments = team
-    ? ["All", ...Array.from(new Set(team.map((m) => m.department).filter(Boolean) as string[]))]
+  // If admin has curated a member_ids list, respect that order; otherwise show all visible
+  const memberIds = c.member_ids ? c.member_ids.split(",").filter(Boolean) : [];
+  type TeamMember = NonNullable<typeof team>[number];
+  const displayTeam: TeamMember[] = memberIds.length > 0
+    ? memberIds.map((id) => team?.find((m) => m.id === id)).filter((m): m is TeamMember => m !== undefined)
+    : (team ?? []);
+
+  const departments = displayTeam.length > 0
+    ? ["All", ...Array.from(new Set(displayTeam.map((m) => m.department).filter(Boolean) as string[]))]
     : ["All"];
-  const filtered = activeDept === "All" ? (team ?? []) : (team ?? []).filter((m) => m.department === activeDept);
+  const filtered = activeDept === "All" ? displayTeam : displayTeam.filter((m) => m.department === activeDept);
 
   return (
     <div className="min-h-screen bg-background">

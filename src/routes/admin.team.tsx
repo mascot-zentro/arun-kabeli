@@ -5,7 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/admin/team")({ component: AdminTeam });
 
@@ -58,6 +58,11 @@ function AdminTeam() {
     qc.invalidateQueries({ queryKey: ["admin-team"] });
   }
 
+  async function toggleVisibility(id: string, current: boolean | null) {
+    await supabase.from("team_members").update({ is_visible: !current }).eq("id", id);
+    qc.invalidateQueries({ queryKey: ["admin-team"] });
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -97,10 +102,27 @@ function AdminTeam() {
                 &ldquo;{m.message}&rdquo;
               </p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground">
-              {m.is_visible ? "Visible" : "Hidden"} &middot; #{m.sort_order}
-            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                m.is_visible ? "bg-green-500/10 text-green-600 dark:text-green-400" : "bg-muted text-muted-foreground"
+              }`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${m.is_visible ? "bg-green-500" : "bg-muted-foreground"}`} />
+                {m.is_visible ? "Visible" : "Hidden"}
+              </span>
+              <span className="text-xs text-muted-foreground">#{m.sort_order}</span>
+            </div>
             <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => toggleVisibility(m.id, m.is_visible)}
+                title={m.is_visible ? "Hide from site" : "Show on site"}
+                className={`flex-1 rounded-md border py-1.5 text-xs transition ${
+                  m.is_visible
+                    ? "hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                    : "hover:bg-green-500/10 hover:text-green-600 hover:border-green-500/30"
+                }`}
+              >
+                {m.is_visible ? <EyeOff className="mx-auto h-3 w-3" /> : <Eye className="mx-auto h-3 w-3" />}
+              </button>
               <button
                 onClick={() => setEdit(m as any)}
                 className="flex-1 rounded-md border py-1.5 text-xs hover:bg-secondary"

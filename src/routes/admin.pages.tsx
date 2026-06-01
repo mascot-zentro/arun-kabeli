@@ -89,11 +89,17 @@ const TEMPLATES: Template[] = [
   {
     key: "about.team",
     label: "About — Our Team",
-    description: "Hero section on the Our Team page.",
+    description: "Hero section and member selection for the Our Team page.",
     fields: [
       { key: "hero_title", label: "Page heading", type: "text", placeholder: "Our Team" },
       { key: "hero_eyebrow", label: "Small label above heading", type: "text", placeholder: "About Us" },
       { key: "intro_text", label: "Intro paragraph (shown above the team grid)", type: "textarea", placeholder: "The people driving our mission…" },
+      {
+        key: "member_ids",
+        label: "Team members to display",
+        type: "team_member_picker",
+        hint: "Select which members appear on the Our Team page. Leave empty to show all visible members.",
+      },
     ],
   },
   {
@@ -119,7 +125,7 @@ function AdminPages() {
   const { data: teamMembers } = useQuery({
     queryKey: ["admin-team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("id, name, role, photo_url").eq("is_visible", true).order("sort_order")).data ?? [],
+      (await supabase.from("team_members").select("id, name, role, photo_url, is_visible").order("sort_order")).data ?? [],
   });
 
   const tpl = TEMPLATES.find((t) => t.key === active)!;
@@ -164,7 +170,7 @@ function AdminPages() {
   );
 }
 
-type TeamMember = { id: string; name: string; role: string | null; photo_url: string | null };
+type TeamMember = { id: string; name: string; role: string | null; photo_url: string | null; is_visible: boolean | null };
 
 function SectionEditor({
   template, initial, existingId, teamMembers, onSaved,
@@ -178,7 +184,13 @@ function SectionEditor({
   const [values, setValues] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => setValues(initial), [template.key]);
+  // Sync values when parent passes fresh initial data (e.g. after cache loads)
+  useEffect(() => {
+    setValues(initial);
+  // template.key is already handled by the `key` prop on SectionEditor,
+  // but initial may arrive asynchronously after sections query resolves.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template.key, JSON.stringify(initial)]);
 
   async function save() {
     setSaving(true);
@@ -282,9 +294,12 @@ function TeamMemberPicker({
                 ? <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" />
                 : <div className="flex h-full w-full items-center justify-center"><User className="h-4 w-4 text-muted-foreground" /></div>}
             </div>
-            <span>
+            <span className="min-w-0 flex-1">
               <span className="block font-medium">{m.name}</span>
-              <span className="block text-xs text-muted-foreground">{m.role}</span>
+              <span className="block truncate text-xs text-muted-foreground">{m.role}</span>
+              {m.is_visible === false && (
+                <span className="mt-0.5 inline-block rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">hidden</span>
+              )}
             </span>
             {selected && (
               <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">✓</span>
