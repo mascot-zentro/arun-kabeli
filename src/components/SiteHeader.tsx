@@ -29,7 +29,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link to="/" className="flex items-center gap-3 text-primary-foreground">
           <img src={logo} alt="Arun Kabeli Power logo" className="h-11 w-11 rounded-full bg-white/95 p-0.5" width={44} height={44} />
-          <span className="hidden font-display text-base font-bold sm:block">Arun Kabeli Power</span>
+          <span className="hidden font-display text-base font-bold sm:block">Arun Kabeli Power Limited</span>
         </Link>
 
         {/* Desktop nav */}
