@@ -293,6 +293,7 @@ export type Database = {
           department: string | null
           id: string
           is_visible: boolean | null
+          message: string | null
           name: string
           photo_url: string | null
           role: string | null
@@ -304,6 +305,7 @@ export type Database = {
           department?: string | null
           id?: string
           is_visible?: boolean | null
+          message?: string | null
           name: string
           photo_url?: string | null
           role?: string | null
@@ -315,6 +317,7 @@ export type Database = {
           department?: string | null
           id?: string
           is_visible?: boolean | null
+          message?: string | null
           name?: string
           photo_url?: string | null
           role?: string | null
