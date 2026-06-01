@@ -40,6 +40,7 @@ function Home() {
     queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
   });
 
+  const heroC  = (pageContent?.find((s) => s.section_key === "home.hero")?.content_json  ?? {}) as Record<string, string>;
   const introC = (pageContent?.find((s) => s.section_key === "home.intro")?.content_json ?? {}) as Record<string, string>;
 
   // Popup documents — shown on first visit to the home page (once per session)
@@ -76,12 +77,23 @@ function Home() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "40px 40px" }} />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-32 md:grid-cols-2 md:items-center">
           <div className="text-primary-foreground">
-            <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-accent">Est. 2011 · Nepal</p>
-            <h1 className="font-display text-5xl font-bold leading-[1.05] md:text-7xl">Powering Nepal with Himalayan rivers.</h1>
-            <p className="mt-6 max-w-lg text-lg text-primary-foreground/80">Sustainable run-of-river hydropower delivering clean, reliable electricity to communities and industry across Nepal.</p>
+            <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-accent">
+              {heroC.eyebrow || "Est. 2011 · Nepal"}
+            </p>
+            <h1 className="font-display text-5xl font-bold leading-[1.05] md:text-7xl">
+              {heroC.title || "Powering Nepal with Himalayan rivers."}
+            </h1>
+            {(heroC.subtitle || !heroC.title) && (
+              <p className="mt-6 max-w-lg text-lg text-primary-foreground/80">
+                {heroC.subtitle || "Sustainable run-of-river hydropower delivering clean, reliable electricity to communities and industry across Nepal."}
+              </p>
+            )}
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link to="/projects" className="group inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-lg transition hover:opacity-90">
-                Explore Projects <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              <Link
+                to={(heroC.cta_link as any) || "/projects"}
+                className="group inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-lg transition hover:opacity-90"
+              >
+                {heroC.cta_label || "Explore Projects"} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
               </Link>
               <Link to="/contact" className="rounded-md border border-primary-foreground/30 px-6 py-3 font-semibold text-primary-foreground transition hover:bg-primary-foreground/10">Partner With Us</Link>
             </div>
