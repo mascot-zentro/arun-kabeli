@@ -103,8 +103,47 @@ function Home() {
         </div>
       </section>
 
+      {/* WHO WE ARE — above featured projects */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid gap-12 lg:grid-cols-[1fr_400px] lg:items-start">
+
+            {/* Text column */}
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">{introC.eyebrow || "Who We Are"}</p>
+              <h2 className="mt-2 font-display text-3xl font-bold md:text-4xl">
+                {introC.title || "Welcome to Arun Kabeli Power Limited"}
+              </h2>
+              <IntroBody text={introC.body || "Since 2011 we've engineered hydropower infrastructure that respects the landscapes it draws energy from — partnering with local communities, government, and global investors."} />
+              <Link
+                to={(introC.cta_link as any) || "/about"}
+                className="mt-6 inline-flex items-center gap-2 font-semibold text-primary hover:text-accent"
+              >
+                {introC.cta_label || "Learn more"} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* Feature cards column */}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              {[
+                { icon: Droplets, t: "Run-of-River", d: "No reservoirs, minimal disruption" },
+                { icon: Zap, t: "Clean Power", d: "Zero direct carbon emissions" },
+                { icon: Mountain, t: "Himalayan Scale", d: "Built for mountain terrain" },
+                { icon: Zap, t: "Community First", d: "Local jobs and partnerships" },
+              ].map((f) => (
+                <div key={f.t} className="rounded-xl border bg-card p-5">
+                  <f.icon className="h-6 w-6 text-accent" />
+                  <h3 className="mt-2 font-display text-base font-bold">{f.t}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{f.d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FEATURED PROJECTS */}
-      <section className="py-24">
+      <section className="border-t bg-secondary/30 py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-end justify-between">
             <div>
@@ -135,32 +174,6 @@ function Home() {
             {(!projects || projects.length === 0) && (
               <p className="col-span-3 py-12 text-center text-muted-foreground">Projects will appear here once added.</p>
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT TEASER */}
-      <section className="bg-secondary/40 py-24">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-2 md:items-center">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">{introC.eyebrow || "Who We Are"}</p>
-            <h2 className="mt-2 font-display text-4xl font-bold md:text-5xl">{introC.title || "Engineered for Nepal. Built to last."}</h2>
-            <p className="mt-6 text-muted-foreground md:text-lg">{introC.body || "Since 2011 we've engineered hydropower infrastructure that respects the landscapes it draws energy from — partnering with local communities, government, and global investors."}</p>
-            <Link to={(introC.cta_link as any) || "/about"} className="mt-8 inline-flex items-center gap-2 font-semibold text-primary hover:text-accent">{introC.cta_label || "Learn more"} <ArrowRight className="h-4 w-4" /></Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { icon: Droplets, t: "Run-of-River", d: "No reservoirs, minimal disruption" },
-              { icon: Zap, t: "Clean Power", d: "Zero direct carbon emissions" },
-              { icon: Mountain, t: "Himalayan Scale", d: "Built for mountain terrain" },
-              { icon: Zap, t: "Community First", d: "Local jobs and partnerships" },
-            ].map((f) => (
-              <div key={f.t} className="rounded-xl border bg-card p-6">
-                <f.icon className="h-7 w-7 text-accent" />
-                <h3 className="mt-3 font-display text-lg font-bold">{f.t}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{f.d}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -247,6 +260,27 @@ function Home() {
       </Dialog>
 
       <SiteFooter />
+    </div>
+  );
+}
+
+function IntroBody({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const LIMIT = 320;
+  const isLong = text.length > LIMIT;
+  const displayed = isLong && !expanded ? text.slice(0, LIMIT).trimEnd() + "…" : text;
+
+  return (
+    <div className="mt-4">
+      <p className="text-muted-foreground leading-relaxed md:text-lg">{displayed}</p>
+      {isLong && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-2 text-sm font-semibold text-primary hover:text-accent"
+        >
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      )}
     </div>
   );
 }
