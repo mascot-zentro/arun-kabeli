@@ -8,6 +8,7 @@ import { AboutDropdown, aboutLinks } from "@/routes/about";
 
 const nav = [
   { to: "/projects", label: "Projects" },
+  { to: "/subsidiaries", label: "Subsidiaries" },
   { to: "/gallery", label: "Gallery" },
   { to: "/documents", label: "Documents" },
   { to: "/news", label: "News" },
