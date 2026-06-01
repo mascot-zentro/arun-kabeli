@@ -15,7 +15,7 @@ function AdminGallery() {
   const { user, loading } = useAuth();
   const [uploading, setUploading] = useState(false);
   const { data: photos } = useQuery({
-    queryKey: ["admin-gallery", user?.id],
+    queryKey: ["gallery"],
     enabled: !loading && !!user,
     queryFn: async () => (await supabase.from("photos").select("*, projects!photos_project_id_fkey(name)").order("sort_order")).data ?? [],
   });
@@ -36,7 +36,8 @@ function AdminGallery() {
       await supabase.from("photos").insert({ url: data.publicUrl, alt_text: file.name });
     }
     setUploading(false);
-    qc.invalidateQueries({ queryKey: ["admin-gallery"] });
+    qc.invalidateQueries({ queryKey: ["gallery"] });
+    qc.invalidateQueries({ queryKey: ["hero-photos"] });
     toast.success("Uploaded");
   }
   async function remove(id: string, url: string) {
@@ -52,11 +53,11 @@ function AdminGallery() {
     const { error } = await supabase.from("photos").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Photo deleted");
-    qc.invalidateQueries({ queryKey: ["admin-gallery"] });
+    qc.invalidateQueries({ queryKey: ["gallery"] });
   }
   async function update(id: string, fields: any) {
     await supabase.from("photos").update(fields).eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-gallery"] });
+    qc.invalidateQueries({ queryKey: ["gallery"] });
   }
 
   return (

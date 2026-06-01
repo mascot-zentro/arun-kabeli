@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/news/$slug")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.slug} — Arun Kabeli Power` },
+      { title: `News — Arun Kabeli Power` },
       { property: "og:type", content: "article" },
       { property: "og:url", content: `/news/${params.slug}` },
     ],
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/news/$slug")({
 });
 
 function Article() {
-  const { slug } = Route.useParams();
   const { data: article } = useQuery({
     queryKey: ["news", slug],
     queryFn: async () => {
@@ -27,7 +26,16 @@ function Article() {
       return data;
     },
   });
-  if (!article) return <div className="min-h-screen bg-background"><SiteHeader /><div className="pt-40 text-center">Loading...</div></div>;
+  const { slug } = Route.useParams();
+  // article is undefined while loading, null when notFound throws
+  if (!article) return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background">

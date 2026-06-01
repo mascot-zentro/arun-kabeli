@@ -25,7 +25,7 @@ function AdminTeam() {
   const qc = useQueryClient();
   const [edit, setEdit] = useState<Partial<Member> | null>(null);
   const { data: members } = useQuery({
-    queryKey: ["admin-team"],
+    queryKey: ["team"],
     queryFn: async () =>
       (await supabase.from("team_members").select("*").order("sort_order")).data ?? [],
   });
@@ -48,19 +48,19 @@ function AdminTeam() {
     else {
       toast.success("Saved");
       setEdit(null);
-      qc.invalidateQueries({ queryKey: ["admin-team"] });
+      qc.invalidateQueries({ queryKey: ["team"] });
     }
   }
 
   async function remove(id: string) {
     if (!confirm("Delete?")) return;
     await supabase.from("team_members").delete().eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-team"] });
+    qc.invalidateQueries({ queryKey: ["team"] });
   }
 
   async function toggleVisibility(id: string, current: boolean | null) {
     await supabase.from("team_members").update({ is_visible: !current }).eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-team"] });
+    qc.invalidateQueries({ queryKey: ["team"] });
   }
 
   return (

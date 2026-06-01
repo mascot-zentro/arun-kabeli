@@ -1,7 +1,18 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.webp";
 
 export function SiteFooter() {
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content"],
+    queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
+    staleTime: 5 * 60 * 1000, // 5 min — footer doesn't need real-time updates
+  });
+  const ci = (pageContent?.find((s) => s.section_key === "contact.info")?.content_json ?? {}) as Record<string, string>;
+  const footerEmail = ci.email || "arunkabeli@gmail.com";
+  const footerAddress = ci.address || "Kathmandu, Nepal";
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-4">
@@ -31,7 +42,7 @@ export function SiteFooter() {
         </div>
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest text-accent">Contact</h4>
-          <p className="mt-4 text-sm text-primary-foreground/70">Kathmandu, Nepal<br/><a href="mailto:arunkabeli@gmail.com" className="hover:text-accent">arunkabeli@gmail.com</a></p>
+          <p className="mt-4 whitespace-pre-line text-sm text-primary-foreground/70">{footerAddress}<br/><a href={`mailto:${footerEmail}`} className="hover:text-accent">{footerEmail}</a></p>
         </div>
       </div>
       <div className="border-t border-primary-foreground/10 py-5 text-center text-xs text-primary-foreground/60">

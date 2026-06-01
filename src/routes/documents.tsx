@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Download, Eye, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, Eye, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/documents")({
   head: () => ({
@@ -33,20 +33,7 @@ function Documents() {
     queryFn: async () => (await supabase.from("documents").select("*").eq("is_public", true).order("uploaded_at", { ascending: false })).data ?? [],
   });
 
-  const popupDocs = (docs ?? [])
-    .filter((d: any) => d.show_as_popup)
-    .sort((a: any, b: any) => (a.popup_sort_order ?? 0) - (b.popup_sort_order ?? 0));
-  const [popupIdx, setPopupIdx] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (popupDocs.length === 0) return;
-    if (typeof window === "undefined") return;
-    if (sessionStorage.getItem("akpl-doc-popup-seen")) return;
-    setPopupIdx(0);
-    sessionStorage.setItem("akpl-doc-popup-seen", "1");
-  }, [popupDocs.length]);
-
-  const currentPopup = popupIdx !== null ? popupDocs[popupIdx] : null;
+  // Popup is now triggered from the home page (index.tsx) — not here
 
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title" | "category">("newest");
@@ -146,50 +133,6 @@ function Documents() {
             <object data={viewing.url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
               <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewing.url)}&embedded=true`} className="h-full w-full rounded-md border" title={viewing.title} />
             </object>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={currentPopup !== null} onOpenChange={(v) => !v && setPopupIdx(null)}>
-        <DialogContent className="flex h-[85vh] max-w-5xl flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between gap-3 pr-8">
-              <span className="truncate">{currentPopup?.title}</span>
-              <div className="flex items-center gap-2">
-                {currentPopup && (
-                  <a href={currentPopup.file_url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md border px-2 py-1 text-xs font-normal hover:bg-secondary">Open in new tab</a>
-                )}
-                {popupDocs.length > 1 && (
-                  <span className="font-mono text-xs text-muted-foreground">{(popupIdx ?? 0) + 1} / {popupDocs.length}</span>
-                )}
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-          {currentPopup && (
-            <object data={currentPopup.file_url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
-              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPopup.file_url)}&embedded=true`} className="h-full w-full rounded-md border" title={currentPopup.title} />
-            </object>
-          )}
-          {popupDocs.length > 1 && (
-            <div className="flex items-center justify-between border-t pt-3">
-              <button
-                onClick={() => setPopupIdx((i) => (i !== null && i > 0 ? i - 1 : i))}
-                disabled={popupIdx === 0}
-                className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-40"
-              >
-                <ChevronLeft className="h-4 w-4" /> Previous
-              </button>
-              <button
-                onClick={() => {
-                  if (popupIdx === null) return;
-                  if (popupIdx < popupDocs.length - 1) setPopupIdx(popupIdx + 1);
-                  else setPopupIdx(null);
-                }}
-                className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
-              >
-                {popupIdx !== null && popupIdx < popupDocs.length - 1 ? (<>Next <ChevronRight className="h-4 w-4" /></>) : "Done"}
-              </button>
-            </div>
           )}
         </DialogContent>
       </Dialog>

@@ -117,7 +117,7 @@ function TeamPage() {
   const { data: team, isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: async () =>
-      (await supabase.from("team_members").select("*").neq("is_visible", false).order("sort_order")).data ?? [],
+      (await supabase.from("team_members").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });
 
   const c = (sections?.find((s) => s.section_key === "about.team")?.content_json ?? {}) as Record<string, string>;

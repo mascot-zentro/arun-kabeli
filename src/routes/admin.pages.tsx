@@ -145,7 +145,7 @@ function AdminPages() {
     queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
   });
   const { data: teamMembers } = useQuery({
-    queryKey: ["admin-team"],
+    queryKey: ["team"],
     queryFn: async () =>
       (await supabase.from("team_members").select("id, name, role, photo_url, is_visible").order("sort_order")).data ?? [],
   });

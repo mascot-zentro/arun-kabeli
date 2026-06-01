@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -29,6 +30,15 @@ const schema = z.object({
 
 function Contact() {
   const [busy, setBusy] = useState(false);
+  const { data: pageContent } = useQuery({
+    queryKey: ["page-content"],
+    queryFn: async () => (await supabase.from("page_content").select("*")).data ?? [],
+  });
+  const ci = (pageContent?.find((s) => s.section_key === "contact.info")?.content_json ?? {}) as Record<string, string>;
+  const contactEmail = ci.email || "arunkabeli@gmail.com";
+  const contactAddress = ci.address || "Kathmandu, Nepal";
+  const contactPhone = ci.phone || null;
+  const contactHours = ci.hours || null;
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -57,8 +67,10 @@ function Contact() {
             <h2 className="font-display text-2xl font-bold">Reach out</h2>
             <p className="mt-2 text-muted-foreground">Partnership, investment, and media inquiries welcome.</p>
             <div className="mt-6 space-y-4">
-              <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Email</div><a href="mailto:arunkabeli@gmail.com" className="text-muted-foreground hover:text-accent">arunkabeli@gmail.com</a></div></div>
-              <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Office</div><div className="text-muted-foreground">Kathmandu, Nepal</div></div></div>
+              <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Email</div><a href={`mailto:${contactEmail}`} className="text-muted-foreground hover:text-accent">{contactEmail}</a></div></div>
+              <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Office</div><div className="text-muted-foreground whitespace-pre-line">{contactAddress}</div></div></div>
+              {contactPhone && <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Phone</div><a href={`tel:${contactPhone}`} className="text-muted-foreground hover:text-accent">{contactPhone}</a></div></div>}
+              {contactHours && <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Hours</div><div className="text-muted-foreground">{contactHours}</div></div></div>}
             </div>
             <iframe src="https://www.google.com/maps?q=Kathmandu,Nepal&output=embed" className="mt-6 aspect-video w-full rounded-lg border" title="Office location" loading="lazy" />
           </div>

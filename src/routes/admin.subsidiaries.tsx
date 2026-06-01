@@ -27,7 +27,7 @@ function AdminSubsidiaries() {
   const [edit, setEdit] = useState<Partial<Sub> | null>(null);
 
   const { data: items } = useQuery({
-    queryKey: ["admin-subsidiaries"],
+    queryKey: ["subsidiaries"],
     queryFn: async () =>
       (await supabase.from("subsidiaries").select("*").order("sort_order")).data ?? [],
   });
@@ -49,14 +49,14 @@ function AdminSubsidiaries() {
     else {
       toast.success("Saved");
       setEdit(null);
-      qc.invalidateQueries({ queryKey: ["admin-subsidiaries"] });
+      qc.invalidateQueries({ queryKey: ["subsidiaries"] });
     }
   }
 
   async function remove(id: string) {
     if (!confirm("Delete?")) return;
     await supabase.from("subsidiaries").delete().eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-subsidiaries"] });
+    qc.invalidateQueries({ queryKey: ["subsidiaries"] });
   }
 
   return (

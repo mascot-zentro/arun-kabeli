@@ -20,7 +20,7 @@ export const Route = createFileRoute("/subsidiaries/")({
 
 function SubsidiariesIndex() {
   const { data: items, isLoading } = useQuery({
-    queryKey: ["subsidiaries-public"],
+    queryKey: ["subsidiaries"],
     queryFn: async () =>
       (await supabase.from("subsidiaries").select("*").eq("is_visible", true).order("sort_order")).data ?? [],
   });

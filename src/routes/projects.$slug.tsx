@@ -8,9 +8,9 @@ import { FileText, ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/projects/$slug")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.slug} — Arun Kabeli Power` },
-      { name: "description", content: `Project details for ${params.slug}.` },
-      { property: "og:title", content: `${params.slug} — Arun Kabeli Power` },
+      { title: `Project — Arun Kabeli Power` },
+      { name: "description", content: `Hydropower project details — Arun Kabeli Power.` },
+      { property: "og:title", content: `Arun Kabeli Power Project` },
       { property: "og:url", content: `/projects/${params.slug}` },
     ],
     links: [{ rel: "canonical", href: `/projects/${params.slug}` }],

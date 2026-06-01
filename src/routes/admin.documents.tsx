@@ -37,13 +37,13 @@ function AdminDocs() {
     setPendingFile(null);
     setPendingCategory("");
     if (error) toast.error(error.message);
-    else { toast.success("Uploaded"); qc.invalidateQueries({ queryKey: ["admin-docs"] }); }
+    else { toast.success("Uploaded"); qc.invalidateQueries({ queryKey: ["admin-docs"] }); qc.invalidateQueries({ queryKey: ["popup-docs"] }); qc.invalidateQueries({ queryKey: ["public-documents"] }); }
   }
 
   async function remove(id: string) {
     if (!confirm("Delete?")) return;
     const { error } = await supabase.from("documents").delete().eq("id", id);
-    if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["admin-docs"] });
+    if (error) toast.error(error.message); else { qc.invalidateQueries({ queryKey: ["admin-docs"] }); qc.invalidateQueries({ queryKey: ["popup-docs"] }); qc.invalidateQueries({ queryKey: ["public-documents"] }); }
   }
   async function updateTitle(id: string, title: string) {
     await supabase.from("documents").update({ title }).eq("id", id);

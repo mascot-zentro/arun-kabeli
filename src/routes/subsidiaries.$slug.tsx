@@ -8,7 +8,8 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 export const Route = createFileRoute("/subsidiaries/$slug")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.slug} — Arun Kabeli Power Limited` },
+      { title: `Subsidiary — Arun Kabeli Power Limited` },
+      { name: "description", content: "Subsidiary company of Arun Kabeli Power Limited." },
       { property: "og:url", content: `/subsidiaries/${params.slug}` },
     ],
     links: [{ rel: "canonical", href: `/subsidiaries/${params.slug}` }],

@@ -15,7 +15,7 @@ function AdminProjects() {
   const qc = useQueryClient();
   const [edit, setEdit] = useState<Partial<Project> | null>(null);
   const { data: projects } = useQuery({
-    queryKey: ["admin-projects"],
+    queryKey: ["projects"],
     queryFn: async () => (await supabase.from("projects").select("*").order("sort_order")).data ?? [],
   });
 
@@ -23,12 +23,14 @@ function AdminProjects() {
     const payload = { name: p.name!, slug: p.slug!, location: p.location ?? null, capacity_mw: p.capacity_mw ?? null, status: p.status ?? "planning", description: p.description ?? null, cover_photo_url: p.cover_photo_url ?? null, sort_order: p.sort_order ?? 0, is_published: p.is_published ?? true };
     const { error } = p.id ? await supabase.from("projects").update(payload).eq("id", p.id) : await supabase.from("projects").insert(payload);
     if (error) toast.error(error.message);
-    else { toast.success("Saved"); setEdit(null); qc.invalidateQueries({ queryKey: ["admin-projects"] }); }
+    else { toast.success("Saved"); setEdit(null); qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["projects-featured"] }); }
   }
   async function remove(id: string) {
     if (!confirm("Delete this project?")) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-projects"] }); }
+    if (error) toast.error(error.message); else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["projects-featured"] }); }
   }
 
   return (

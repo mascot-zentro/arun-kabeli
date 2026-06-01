@@ -19,7 +19,7 @@ function AdminNews() {
   const qc = useQueryClient();
   const [edit, setEdit] = useState<Partial<Article> | null>(null);
   const { data: items } = useQuery({
-    queryKey: ["admin-news"],
+    queryKey: ["news"],
     queryFn: async () => (await supabase.from("news").select("*").order("created_at", { ascending: false })).data ?? [],
   });
 
@@ -36,17 +36,17 @@ function AdminNews() {
       published_at: a.is_published ? (a.published_at ?? new Date().toISOString()) : null,
     };
     const { error } = a.id ? await supabase.from("news").update(payload).eq("id", a.id) : await supabase.from("news").insert(payload);
-    if (error) toast.error(error.message); else { toast.success(a.is_published ? "Published" : "Saved as draft"); setEdit(null); qc.invalidateQueries({ queryKey: ["admin-news"] }); }
+    if (error) toast.error(error.message); else { toast.success(a.is_published ? "Published" : "Saved as draft"); setEdit(null); qc.invalidateQueries({ queryKey: ["news"] }); qc.invalidateQueries({ queryKey: ["news-latest"] }); }
   }
   async function togglePublish(a: any) {
     const next = !a.is_published;
     const { error } = await supabase.from("news").update({ is_published: next, published_at: next ? (a.published_at ?? new Date().toISOString()) : null }).eq("id", a.id);
-    if (error) toast.error(error.message); else { toast.success(next ? "Published" : "Unpublished"); qc.invalidateQueries({ queryKey: ["admin-news"] }); }
+    if (error) toast.error(error.message); else { toast.success(next ? "Published" : "Unpublished"); qc.invalidateQueries({ queryKey: ["news"] }); qc.invalidateQueries({ queryKey: ["news-latest"] }); }
   }
   async function remove(id: string) {
     if (!confirm("Delete this article? This cannot be undone.")) return;
     await supabase.from("news").delete().eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-news"] });
+    qc.invalidateQueries({ queryKey: ["news"] });
   }
 
   return (
