@@ -31,7 +31,25 @@ function ProjectDetail() {
   const { data: photos } = useQuery({
     queryKey: ["project-photos", project?.id],
     enabled: !!project?.id,
-    queryFn: async () => (await supabase.from("project_photos").select("photos(*)").eq("project_id", project!.id)).data ?? [],
+    queryFn: async () => {
+      const [junctionRows, taggedRows] = await Promise.all([
+        // Photos linked via the project_photos junction table
+        supabase.from("project_photos").select("photos(*)").eq("project_id", project!.id),
+        // Photos tagged directly with project_id in the gallery admin
+        supabase.from("photos").select("*").eq("project_id", project!.id),
+      ]);
+      // Merge and deduplicate by photo id
+      const seen = new Set<string>();
+      const merged: Array<{ id: string; url: string; alt_text: string | null; caption: string | null }> = [];
+      for (const row of (junctionRows.data ?? [])) {
+        const p = (row as any).photos;
+        if (p && !seen.has(p.id)) { seen.add(p.id); merged.push(p); }
+      }
+      for (const p of (taggedRows.data ?? [])) {
+        if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); }
+      }
+      return merged;
+    },
   });
   const { data: docs } = useQuery({
     queryKey: ["project-docs", project?.id],
@@ -75,8 +93,8 @@ function ProjectDetail() {
           <div className="mx-auto max-w-7xl px-6">
             <h2 className="font-display text-3xl font-bold">Gallery</h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-              {photos.map((row: any, i: number) => row.photos && (
-                <img key={i} src={row.photos.url} alt={row.photos.alt_text ?? ""} className="aspect-square w-full rounded-lg object-cover" loading="lazy" />
+              {photos.map((photo, i) => (
+                <img key={photo.id ?? i} src={photo.url} alt={photo.alt_text ?? ""} className="aspect-square w-full rounded-lg object-cover" loading="lazy" />
               ))}
             </div>
           </div>

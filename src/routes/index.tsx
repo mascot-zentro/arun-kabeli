@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { ArrowRight, Zap, Droplets, Mountain } from "lucide-react";
+import { ArrowRight, Zap, Droplets, Mountain, ChevronLeft, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import logo from "@/assets/logo.webp";
 
 export const Route = createFileRoute("/")({
@@ -40,6 +41,23 @@ function Home() {
   });
 
   const introC = (pageContent?.find((s) => s.section_key === "home.intro")?.content_json ?? {}) as Record<string, string>;
+
+  // Popup documents — shown on first visit to the home page (once per session)
+  const { data: popupDocs } = useQuery({
+    queryKey: ["popup-docs"],
+    queryFn: async () =>
+      (await supabase.from("documents").select("*").eq("is_public", true).eq("show_as_popup", true).order("popup_sort_order")).data ?? [],
+  });
+  const [popupIdx, setPopupIdx] = useState<number | null>(null);
+  const currentPopup = popupIdx !== null && popupDocs ? popupDocs[popupIdx] : null;
+
+  useEffect(() => {
+    if (!popupDocs || popupDocs.length === 0) return;
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem("akpl-doc-popup-seen")) return;
+    setPopupIdx(0);
+    sessionStorage.setItem("akpl-doc-popup-seen", "1");
+  }, [popupDocs?.length]);
   const statsC = (pageContent?.find((s) => s.section_key === "home.stats")?.content_json ?? {}) as Record<string, string>;
 
   const stats = [
@@ -182,6 +200,51 @@ function Home() {
           <Link to="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-lg">Get in touch <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
+
+      {/* DOCUMENT POPUP — shown once per session on first home page visit */}
+      <Dialog open={currentPopup !== null} onOpenChange={(v) => !v && setPopupIdx(null)}>
+        <DialogContent className="flex h-[85vh] max-w-5xl flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-3 pr-8">
+              <span className="truncate">{currentPopup?.title}</span>
+              <div className="flex items-center gap-2">
+                {currentPopup && (
+                  <a href={currentPopup.file_url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md border px-2 py-1 text-xs font-normal hover:bg-secondary">Open in new tab</a>
+                )}
+                {popupDocs && popupDocs.length > 1 && (
+                  <span className="font-mono text-xs text-muted-foreground">{(popupIdx ?? 0) + 1} / {popupDocs.length}</span>
+                )}
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          {currentPopup && (
+            <object data={currentPopup.file_url} type="application/pdf" className="min-h-0 flex-1 rounded-md border">
+              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPopup.file_url)}&embedded=true`} className="h-full w-full rounded-md border" title={currentPopup.title} />
+            </object>
+          )}
+          {popupDocs && popupDocs.length > 1 && (
+            <div className="flex items-center justify-between border-t pt-3">
+              <button
+                onClick={() => setPopupIdx((i) => (i !== null && i > 0 ? i - 1 : i))}
+                disabled={popupIdx === 0}
+                className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4" /> Previous
+              </button>
+              <button
+                onClick={() => {
+                  if (popupIdx === null) return;
+                  if (popupIdx < popupDocs.length - 1) setPopupIdx(popupIdx + 1);
+                  else setPopupIdx(null);
+                }}
+                className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+              >
+                {popupIdx !== null && popupIdx < popupDocs.length - 1 ? (<>Next <ChevronRight className="h-4 w-4" /></>) : "Done"}
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <SiteFooter />
     </div>

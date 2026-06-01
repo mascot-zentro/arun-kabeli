@@ -65,7 +65,7 @@ function AdminDocs() {
       </div>
 
       <div className="mt-6 rounded-lg border bg-secondary/30 p-3 text-xs text-muted-foreground">
-        <strong className="text-foreground">Popup on first visit:</strong> tick "Popup" to show a document automatically the first time a visitor opens the Documents page (once per browser session). If multiple are ticked, the lower <strong>Order</strong> number is shown first.
+        <strong className="text-foreground">Popup on first visit:</strong> tick "Popup" to show a document automatically the first time a visitor opens the <strong>Home page</strong> (once per browser session). If multiple are ticked, the lower <strong>Order</strong> number is shown first.
       </div>
 
       <div className="mt-4 space-y-2">
