@@ -301,40 +301,120 @@ function TeamMemberPicker({
     onChange(next.join(","));
   }
 
+  // Move a selected member up or down in the order
+  function moveSelected(id: string, dir: -1 | 1) {
+    const arr = [...selectedIds];
+    const i = arr.indexOf(id);
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    onChange(arr.join(","));
+  }
+
+  const unselected = members.filter((m) => !selectedIds.includes(m.id));
+
   return (
-    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+    <div className="mt-3 space-y-3">
       {members.length === 0 && (
-        <p className="col-span-full text-xs text-muted-foreground">No team members yet. Add some in Team admin first.</p>
+        <p className="text-xs text-muted-foreground">No team members yet. Add some in Team admin first.</p>
       )}
-      {members.map((m) => {
-        const selected = selectedIds.includes(m.id);
-        return (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => toggle(m.id)}
-            className={`flex items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
-              selected ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40 hover:bg-secondary"
-            }`}
-          >
-            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
-              {m.photo_url
-                ? <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" />
-                : <div className="flex h-full w-full items-center justify-center"><User className="h-4 w-4 text-muted-foreground" /></div>}
-            </div>
-            <span className="min-w-0 flex-1">
-              <span className="block font-medium">{m.name}</span>
-              <span className="block truncate text-xs text-muted-foreground">{m.role}</span>
-              {m.is_visible === false && (
-                <span className="mt-0.5 inline-block rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">hidden</span>
-              )}
-            </span>
-            {selected && (
-              <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">✓</span>
-            )}
-          </button>
-        );
-      })}
+
+      {/* ── Selected members (ordered) ── */}
+      {multi && selectedIds.length > 0 && (
+        <div>
+          <p className="mb-1.5 text-xs font-semibold text-foreground">
+            Selected — drag ↑↓ buttons to reorder
+          </p>
+          <div className="space-y-1.5">
+            {selectedIds.map((id, idx) => {
+              const m = members.find((x) => x.id === id);
+              if (!m) return null;
+              return (
+                <div key={id} className="flex items-center gap-2 rounded-lg border border-primary bg-primary/8 px-3 py-2 text-sm">
+                  <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
+                    {m.photo_url
+                      ? <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" />
+                      : <div className="flex h-full w-full items-center justify-center"><User className="h-3 w-3 text-muted-foreground" /></div>}
+                  </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium text-primary">{m.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{m.role}</span>
+                  </span>
+                  {/* Order badge */}
+                  <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                    {idx + 1}
+                  </span>
+                  {/* Move buttons */}
+                  <div className="flex shrink-0 flex-col gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => moveSelected(id, -1)}
+                      disabled={idx === 0}
+                      className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-30"
+                      title="Move up"
+                    >▲</button>
+                    <button
+                      type="button"
+                      onClick={() => moveSelected(id, 1)}
+                      disabled={idx === selectedIds.length - 1}
+                      className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-30"
+                      title="Move down"
+                    >▼</button>
+                  </div>
+                  {/* Remove */}
+                  <button
+                    type="button"
+                    onClick={() => toggle(id)}
+                    className="shrink-0 rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    title="Remove"
+                  >✕</button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Unselected members ── */}
+      {(multi ? unselected : members).length > 0 && (
+        <div>
+          {multi && selectedIds.length > 0 && (
+            <p className="mb-1.5 text-xs font-semibold text-muted-foreground">Add more</p>
+          )}
+          <div className="grid gap-1.5 sm:grid-cols-2">
+            {(multi ? unselected : members).map((m) => {
+              const selected = !multi && selectedIds.includes(m.id);
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => toggle(m.id)}
+                  className={`flex items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
+                    selected ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40 hover:bg-secondary"
+                  }`}
+                >
+                  <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
+                    {m.photo_url
+                      ? <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" />
+                      : <div className="flex h-full w-full items-center justify-center"><User className="h-3 w-3 text-muted-foreground" /></div>}
+                  </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium">{m.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{m.role}</span>
+                    {m.is_visible === false && (
+                      <span className="mt-0.5 inline-block rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">hidden</span>
+                    )}
+                  </span>
+                  {selected && (
+                    <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
