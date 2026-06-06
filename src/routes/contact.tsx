@@ -5,7 +5,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
@@ -69,8 +69,8 @@ function Contact() {
             <div className="mt-6 space-y-4">
               <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Email</div><a href={`mailto:${contactEmail}`} className="text-muted-foreground hover:text-accent">{contactEmail}</a></div></div>
               <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Office</div><div className="text-muted-foreground whitespace-pre-line">{contactAddress}</div></div></div>
-              {contactPhone && <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Phone</div><a href={`tel:${contactPhone}`} className="text-muted-foreground hover:text-accent">{contactPhone}</a></div></div>}
-              {contactHours && <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Hours</div><div className="text-muted-foreground">{contactHours}</div></div></div>}
+              {contactPhone && <div className="flex gap-3"><Phone className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Phone</div><a href={`tel:${contactPhone}`} className="text-muted-foreground hover:text-accent">{contactPhone}</a></div></div>}
+              {contactHours && <div className="flex gap-3"><Clock className="mt-1 h-5 w-5 text-accent" /><div><div className="font-semibold">Hours</div><div className="text-muted-foreground">{contactHours}</div></div></div>}
             </div>
             <iframe src="https://www.google.com/maps?q=Kathmandu,Nepal&output=embed" className="mt-6 aspect-video w-full rounded-lg border" title="Office location" loading="lazy" />
           </div>
