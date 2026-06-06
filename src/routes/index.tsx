@@ -282,7 +282,7 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
       <div className="absolute inset-0 h-full opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
 
       {/* ── Hanging light bulb — top-right corner ── */}
-      <div className="absolute right-8 top-0 z-20 hidden lg:flex lg:flex-col lg:items-center">
+      <div className="absolute left-8 top-0 z-20 hidden lg:flex lg:flex-col lg:items-center">
         <LightBulb />
       </div>
 
