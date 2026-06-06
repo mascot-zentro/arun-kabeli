@@ -20,6 +20,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
@@ -92,6 +93,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/',
+  getParentRoute: () => ProjectsRoute,
 } as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/$slug',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
+  '/projects/': typeof ProjectsIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
+  '/projects/': typeof ProjectsIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/news': typeof NewsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
+  '/projects/': typeof ProjectsIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subsidiaries': typeof SubsidiariesRoute
   '/about/board': typeof AboutBoardRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/news'
     | '/projects'
+    | '/projects/'
     | '/sitemap.xml'
     | '/subsidiaries'
     | '/about/board'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/news'
     | '/projects'
+    | '/projects/'
     | '/sitemap.xml'
     | '/subsidiaries'
     | '/about/board'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/news'
     | '/projects'
+    | '/projects/'
     | '/sitemap.xml'
     | '/subsidiaries'
     | '/about/board'
@@ -452,6 +464,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRoute
     }
     '/projects/$slug': {
       id: '/projects/$slug'
@@ -634,10 +653,13 @@ const NewsRouteChildren: NewsRouteChildren = {
 const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
 
 interface ProjectsRouteChildren {
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
 }
 
 const ProjectsRouteChildren: ProjectsRouteChildren = {
+  ProjectsIndexRoute: ProjectsIndexRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
 }
 
