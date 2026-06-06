@@ -26,6 +26,7 @@ import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminSubsidiariesRouteImport } from './routes/admin.subsidiaries'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
+import { Route as AdminProjectsIndexRouteImport } from './routes/admin.projects.index'
 import { Route as AdminProjectsIdRouteImport } from './routes/admin.projects.$id'
 import { Route as AdminPasswordRouteImport } from './routes/admin.password'
 import { Route as AdminPagesRouteImport } from './routes/admin.pages'
@@ -124,6 +125,11 @@ const AdminProjectsRoute = AdminProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProjectsIndexRoute = AdminProjectsIndexRouteImport.update({
+  id: '/admin/projects/',
+  path: '/',
+  getParentRoute: () => AdminProjectsRoute,
+} as any)
 const AdminProjectsIdRoute = AdminProjectsIdRouteImport.update({
   id: '/projects/$id',
   path: '/projects/$id',
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/pages': typeof AdminPagesRoute
   '/admin/password': typeof AdminPasswordRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/$id': typeof AdminProjectsIdRoute
   '/admin/subsidiaries': typeof AdminSubsidiariesRoute
   '/admin/team': typeof AdminTeamRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/admin/pages': typeof AdminPagesRoute
   '/admin/password': typeof AdminPasswordRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/$id': typeof AdminProjectsIdRoute
   '/admin/subsidiaries': typeof AdminSubsidiariesRoute
   '/admin/team': typeof AdminTeamRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/admin/pages': typeof AdminPagesRoute
   '/admin/password': typeof AdminPasswordRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/$id': typeof AdminProjectsIdRoute
   '/admin/subsidiaries': typeof AdminSubsidiariesRoute
   '/admin/team': typeof AdminTeamRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/admin/pages'
     | '/admin/password'
     | '/admin/projects'
+    | '/admin/projects/'
     | '/admin/projects/$id'
     | '/admin/subsidiaries'
     | '/admin/team'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/admin/pages'
     | '/admin/password'
     | '/admin/projects'
+    | '/admin/projects/'
     | '/admin/projects/$id'
     | '/admin/subsidiaries'
     | '/admin/team'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/pages'
     | '/admin/password'
     | '/admin/projects'
+    | '/admin/projects/'
     | '/admin/projects/$id'
     | '/admin/subsidiaries'
     | '/admin/team'
@@ -507,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProjectsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/projects/': {
+      id: '/admin/projects/'
+      path: '/'
+      fullPath: '/admin/projects/'
+      preLoaderRoute: typeof AdminProjectsIndexRouteImport
+      parentRoute: typeof AdminProjectsRoute
+    }
     '/admin/projects/$id': {
       id: '/admin/projects/$id'
       path: '/projects/$id'
@@ -608,6 +627,14 @@ const AboutRouteChildren: AboutRouteChildren = {
 
 const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
 
+interface AdminProjectsRouteChildren {
+  AdminProjectsIndexRoute: typeof AdminProjectsIndexRoute
+}
+const AdminProjectsRouteChildren: AdminProjectsRouteChildren = {
+  AdminProjectsIndexRoute: AdminProjectsIndexRoute,
+}
+const AdminProjectsRouteWithChildren = AdminProjectsRoute._addFileChildren(AdminProjectsRouteChildren)
+
 interface AdminRouteChildren {
   AdminContactsRoute: typeof AdminContactsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
@@ -617,7 +644,7 @@ interface AdminRouteChildren {
   AdminNewsRoute: typeof AdminNewsRoute
   AdminPagesRoute: typeof AdminPagesRoute
   AdminPasswordRoute: typeof AdminPasswordRoute
-  AdminProjectsRoute: typeof AdminProjectsRoute
+  AdminProjectsRoute: typeof AdminProjectsRouteWithChildren
   AdminProjectsIdRoute: typeof AdminProjectsIdRoute
   AdminSubsidiariesRoute: typeof AdminSubsidiariesRoute
   AdminTeamRoute: typeof AdminTeamRoute
@@ -633,7 +660,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminNewsRoute: AdminNewsRoute,
   AdminPagesRoute: AdminPagesRoute,
   AdminPasswordRoute: AdminPasswordRoute,
-  AdminProjectsRoute: AdminProjectsRoute,
+  AdminProjectsRoute: AdminProjectsRouteWithChildren,
   AdminProjectsIdRoute: AdminProjectsIdRoute,
   AdminSubsidiariesRoute: AdminSubsidiariesRoute,
   AdminTeamRoute: AdminTeamRoute,
