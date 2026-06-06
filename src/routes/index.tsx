@@ -461,16 +461,67 @@ function LightBulb() {
         transition: "filter 0.4s ease",
       }}
     >
-      {/* Cord — hangs from top of hero (navbar base) */}
-      <div style={{
-        width: "2px",
-        height: "60px",
-        borderRadius: "2px",
-        background: on
-          ? "linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(160,140,100,0.9))"
-          : "linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(120,110,90,0.6))",
-        transition: "background 0.4s",
-      }} />
+      {/* Curvy hanging rope */}
+      <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg"
+        style={{ marginBottom: "-6px" }}
+      >
+        {/* Rope shadow/depth */}
+        <path
+          d="M30 2 C18 20, 42 40, 30 60 C22 72, 35 80, 30 88"
+          stroke={on ? "rgba(100,70,20,0.5)" : "rgba(60,60,60,0.4)"}
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+          style={{ transition: "stroke 0.4s" }}
+        />
+        {/* Rope main body */}
+        <path
+          d="M30 2 C18 20, 42 40, 30 60 C22 72, 35 80, 30 88"
+          stroke={on ? "url(#ropeGradOn)" : "url(#ropeGradOff)"}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          fill="none"
+          style={{ transition: "stroke 0.4s" }}
+        />
+        {/* Rope highlight (left edge shine) */}
+        <path
+          d="M28 2 C16 20, 40 40, 28 60 C20 72, 33 80, 28 88"
+          stroke={on ? "rgba(255,220,120,0.35)" : "rgba(200,200,200,0.2)"}
+          strokeWidth="1"
+          strokeLinecap="round"
+          fill="none"
+          style={{ transition: "stroke 0.4s" }}
+        />
+        {/* Rope texture dashes */}
+        {[10, 22, 34, 48, 62, 74].map((t, i) => {
+          const x = 30 + (i % 2 === 0 ? -6 : 6);
+          const y = t;
+          return (
+            <line key={i}
+              x1={x - 3} y1={y}
+              x2={x + 3} y2={y + 4}
+              stroke={on ? "rgba(140,90,10,0.5)" : "rgba(80,80,80,0.35)"}
+              strokeWidth="1"
+              strokeLinecap="round"
+              style={{ transition: "stroke 0.4s" }}
+            />
+          );
+        })}
+        <defs>
+          <linearGradient id="ropeGradOn" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#8B5E1A" />
+            <stop offset="35%"  stopColor="#D4A017" />
+            <stop offset="65%"  stopColor="#F5C842" />
+            <stop offset="100%" stopColor="#8B5E1A" />
+          </linearGradient>
+          <linearGradient id="ropeGradOff" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#3A3A3A" />
+            <stop offset="35%"  stopColor="#6A6A6A" />
+            <stop offset="65%"  stopColor="#8A8A8A" />
+            <stop offset="100%" stopColor="#3A3A3A" />
+          </linearGradient>
+        </defs>
+      </svg>
 
       {/* Bulb SVG — viewBox sized for the realistic shape */}
       <svg width="110" height="138" viewBox="0 0 96 120" fill="none" xmlns="http://www.w3.org/2000/svg"
