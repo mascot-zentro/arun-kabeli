@@ -19,6 +19,7 @@ type Project = {
   status: string;
   description: string | null;
   cover_photo_url: string | null;
+  sort_order: number;
   is_published: boolean;
 };
 
@@ -49,7 +50,7 @@ function AdminProjectEdit() {
   const [form, setForm] = useState<Partial<Project>>({
     name: "", slug: "", location: "", capacity_mw: null,
     status: "planning", description: "", cover_photo_url: null,
-    is_published: true,
+    sort_order: 0, is_published: true,
   });
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -73,6 +74,7 @@ function AdminProjectEdit() {
       status: form.status ?? "planning",
       description: form.description || null,
       cover_photo_url: form.cover_photo_url || null,
+      sort_order: form.sort_order ?? 0,
       is_published: form.is_published ?? true,
     };
     if (isNew) {
@@ -314,6 +316,15 @@ function AdminProjectEdit() {
                 </select>
               </label>
 
+              <label className="block">
+                <span className="text-sm font-medium">Sort order</span>
+                <input
+                  type="number"
+                  value={form.sort_order ?? 0}
+                  onChange={(e) => set({ sort_order: parseInt(e.target.value) || 0 })}
+                  className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </label>
               <label className="flex cursor-pointer items-center justify-between rounded-lg border bg-background p-3">
                 <div>
                   <span className="text-sm font-medium">Published</span>

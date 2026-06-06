@@ -30,18 +30,19 @@ function Documents() {
   const [viewing, setViewing] = useState<{ url: string; title: string } | null>(null);
   const { data: docs } = useQuery({
     queryKey: ["public-documents"],
-    queryFn: async () => (await supabase.from("documents").select("*").eq("is_public", true).order("uploaded_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await supabase.from("documents").select("*").eq("is_public", true).order("sort_order", { ascending: true })).data ?? [],
   });
 
   // Popup is now triggered from the home page (index.tsx) — not here
 
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title" | "category">("newest");
+  const [sortBy, setSortBy] = useState<"manual" | "newest" | "oldest" | "title" | "category">("manual");
   const allCategories = Array.from(new Set((docs ?? []).map((d) => d.category).filter(Boolean))) as string[];
   const visibleDocs = (docs ?? [])
     .filter((d) => categoryFilter === "all" || d.category === categoryFilter)
     .slice()
     .sort((a, b) => {
+      if (sortBy === "manual") return (a.sort_order ?? 0) - (b.sort_order ?? 0);
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "category") return (a.category ?? "").localeCompare(b.category ?? "");
       const at = new Date(a.uploaded_at ?? 0).getTime();
@@ -74,6 +75,7 @@ function Documents() {
                 <label className="flex items-center gap-2 text-xs">
                   <span className="font-mono uppercase tracking-wider text-muted-foreground">Sort:</span>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="rounded-md border bg-card px-2 py-1">
+                    <option value="manual">Admin order</option>
                     <option value="newest">Newest first</option>
                     <option value="oldest">Oldest first</option>
                     <option value="title">Title (A–Z)</option>

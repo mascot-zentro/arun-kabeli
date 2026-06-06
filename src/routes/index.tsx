@@ -29,7 +29,7 @@ function Home() {
   });
   const { data: projects } = useQuery({
     queryKey: ["projects-featured"],
-    queryFn: async () => (await supabase.from("projects").select("*").eq("is_published", true).order("created_at", { ascending: true }).limit(3)).data ?? [],
+    queryFn: async () => (await supabase.from("projects").select("*").eq("is_published", true).order("sort_order", { ascending: true }).limit(3)).data ?? [],
   });
   const { data: news } = useQuery({
     queryKey: ["news-latest"],
