@@ -48,12 +48,6 @@ function ProjectDetail() {
       for (const p of (taggedRows.data ?? [])) {
         if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); }
       }
-      // Also include gallery_urls stored directly on the project row
-      const galleryUrls: string[] = (project as any).gallery_urls ?? [];
-      for (const url of galleryUrls) {
-        const fakeId = `gallery-${url}`;
-        if (!seen.has(fakeId)) { seen.add(fakeId); merged.push({ id: fakeId, url, alt_text: null, caption: null }); }
-      }
       return merged;
     },
   });

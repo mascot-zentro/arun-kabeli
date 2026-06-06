@@ -48,8 +48,16 @@ function AdminProjects() {
 
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: async () =>
-      (await supabase.from("projects").select("*").order("sort_order")).data ?? [],
+    queryFn: async () => {
+      const { data: projs } = await supabase.from("projects").select("*").order("sort_order");
+      if (!projs) return [];
+      // Attach gallery photos from the photos table (tagged by project_id)
+      const { data: photos } = await supabase.from("photos").select("id,url,project_id").not("project_id", "is", null);
+      return projs.map((p) => ({
+        ...p,
+        gallery_urls: (photos ?? []).filter((ph) => ph.project_id === p.id).map((ph) => ph.url),
+      }));
+    },
   });
 
   async function save(p: Partial<Project>) {
@@ -61,7 +69,6 @@ function AdminProjects() {
       status: p.status ?? "planning",
       description: p.description ?? null,
       cover_photo_url: p.cover_photo_url ?? null,
-      gallery_urls: p.gallery_urls ?? [],
       sort_order: p.sort_order ?? 0,
       is_published: p.is_published ?? true,
     };
@@ -184,7 +191,7 @@ function AdminProjects() {
                 </div>
                 <div className="flex gap-1.5">
                   <button
-                    onClick={() => setEdit({ ...p, gallery_urls: p.gallery_urls ?? [] })}
+                    onClick={() => setEdit({ ...p, gallery_urls: (p as any).gallery_urls ?? [] })}
                     className="flex h-7 w-7 items-center justify-center rounded-md border hover:bg-secondary"
                     title="Edit"
                   >
@@ -251,6 +258,10 @@ function ProjectForm({ initial, onSave }: { initial: Partial<Project>; onSave: (
     const { error } = await supabase.storage.from("photos").upload(path, file);
     if (error) { toast.error(error.message); setUploadingGallery(false); return; }
     const { data } = supabase.storage.from("photos").getPublicUrl(path);
+    // If we have a saved project id, tag the photo directly in the photos table
+    if (p.id) {
+      await supabase.from("photos").insert({ url: data.publicUrl, project_id: p.id });
+    }
     setP((prev) => ({ ...prev, gallery_urls: [...(prev.gallery_urls ?? []), data.publicUrl] }));
     setUploadingGallery(false);
   }
