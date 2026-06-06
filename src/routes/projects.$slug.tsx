@@ -169,21 +169,33 @@ function ProjectDetail() {
 
       {/* ── Salient Features ── */}
       {(project as any).salient_features?.length > 0 && (
-        <section className="border-b bg-secondary/30 py-12">
-          <div className="mx-auto max-w-7xl px-6">
-            <h2 className="mb-8 font-display text-2xl font-bold">Salient Features</h2>
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {((project as any).salient_features as Array<{ id: string; icon: string; label: string; value: string }>).map((feat) => (
-                <div key={feat.id} className="flex items-start gap-3 rounded-xl border bg-card p-4 shadow-sm">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/8">
-                    <FeatureIcon name={feat.icon} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{feat.label}</p>
-                    <p className="mt-0.5 font-medium leading-tight text-foreground">{feat.value}</p>
-                  </div>
-                </div>
-              ))}
+        <section className="border-b bg-secondary/30 py-14">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="mb-6 font-display text-2xl font-bold">Salient Features</h2>
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-secondary/50">
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground w-1/2">Feature</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground w-1/2">Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {((project as any).salient_features as Array<{ id: string; icon: string; label: string; value: string }>).map((feat, i) => (
+                    <tr key={feat.id} className={i !== 0 ? "border-t" : ""}>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/8">
+                            <FeatureIcon name={feat.icon} />
+                          </div>
+                          <span className="font-medium text-foreground">{feat.label}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-muted-foreground">{feat.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
