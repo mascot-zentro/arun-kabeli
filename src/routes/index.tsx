@@ -281,6 +281,11 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
       {/* ── Dot grid texture overlay ── */}
       <div className="absolute inset-0 h-full opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
 
+      {/* ── Hanging light bulb — top-right corner ── */}
+      <div className="absolute right-8 top-0 z-20 hidden lg:flex lg:flex-col lg:items-center">
+        <LightBulb />
+      </div>
+
       {/* ── Content ── */}
       <div className="relative flex min-h-screen flex-col">
 
@@ -288,11 +293,6 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
         <div className="flex flex-1 items-center">
           <div className="mx-auto w-full max-w-7xl px-6 py-40">
             <div className="max-w-2xl">
-
-              {/* Floating light bulb — top right of hero */}
-              <div className="absolute right-8 top-32 hidden xl:flex xl:flex-col xl:items-center" style={{ zIndex: 10 }}>
-                <LightBulb />
-              </div>
 
               {/* Eyebrow */}
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 backdrop-blur-sm">
@@ -443,6 +443,12 @@ function LightBulb() {
   const [on, setOn] = useState(true);
   const [hover, setHover] = useState(false);
 
+  // Auto-toggle every 3 seconds
+  useEffect(() => {
+    const t = setInterval(() => setOn((v) => !v), 3000);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <button
       onClick={() => setOn((v) => !v)}
@@ -455,19 +461,19 @@ function LightBulb() {
         transition: "filter 0.4s ease",
       }}
     >
-      {/* Cord */}
+      {/* Cord — hangs from top of hero (navbar base) */}
       <div style={{
-        width: "3px",
-        height: "44px",
+        width: "2px",
+        height: "60px",
         borderRadius: "2px",
         background: on
-          ? "linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(160,140,100,0.8))"
-          : "linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(120,110,90,0.5))",
+          ? "linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(160,140,100,0.9))"
+          : "linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(120,110,90,0.6))",
         transition: "background 0.4s",
       }} />
 
       {/* Bulb SVG — viewBox sized for the realistic shape */}
-      <svg width="96" height="120" viewBox="0 0 96 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+      <svg width="110" height="138" viewBox="0 0 96 120" fill="none" xmlns="http://www.w3.org/2000/svg"
         className="transition-transform duration-200 group-hover:scale-105"
       >
         <defs>
