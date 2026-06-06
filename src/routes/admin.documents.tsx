@@ -171,7 +171,25 @@ function AdminDocs() {
               <GripVertical className="h-4 w-4" />
             </div>
 
-
+            {/* Move up / down */}
+            <div className="flex flex-col gap-0.5">
+              <button
+                onClick={() => move(d.id, -1)}
+                disabled={idx === 0}
+                className="flex h-4 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-20"
+                title="Move up"
+              >
+                <ChevronUp className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => move(d.id, 1)}
+                disabled={idx === (docs?.length ?? 0) - 1}
+                className="flex h-4 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-20"
+                title="Move down"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
 
             {/* Title */}
             <div className="flex min-w-0 items-center gap-2">
