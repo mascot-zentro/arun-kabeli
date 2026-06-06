@@ -254,7 +254,7 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
     <section className="relative min-h-screen overflow-hidden">
 
       {/* ── Background: full-bleed slider or mesh fallback ── */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 h-full">
         {hasPhotos ? (
           <>
             {photos.map((p, i) => (
@@ -267,8 +267,8 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
               />
             ))}
             {/* Gradient overlay — dark at top (nav) + left (text), lighter on right */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-transparent to-primary/60" />
+            <div className="absolute inset-0 h-full bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
+            <div className="absolute inset-0 h-full bg-gradient-to-b from-primary/40 via-transparent to-primary/60" />
           </>
         ) : (
           <div className="absolute inset-0 animated-mesh" />
@@ -276,7 +276,7 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
       </div>
 
       {/* ── Dot grid texture overlay ── */}
-      <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
+      <div className="absolute inset-0 h-full opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
 
       {/* ── Content ── */}
       <div className="relative flex min-h-screen flex-col">
@@ -355,7 +355,7 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
 
         {/* ── Slider controls — bottom right ── */}
         {hasPhotos && photos.length > 1 && (
-          <div className="absolute bottom-24 right-6 flex items-center gap-2 md:bottom-28 md:right-10">
+          <div className="absolute bottom-40 right-6 flex items-center gap-2 md:bottom-44 md:right-10">
             {/* Dot indicators */}
             <div className="mr-2 flex gap-1.5">
               {photos.map((_, i) => (
@@ -382,7 +382,7 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
 
         {/* Caption */}
         {hasPhotos && photos[idx]?.caption && (
-          <div className="absolute bottom-[5.5rem] left-6 md:bottom-24 md:left-10">
+          <div className="absolute bottom-40 left-6 md:bottom-44 md:left-10">
             <p className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-white/60 backdrop-blur-sm">
               {photos[idx].caption}
             </p>
