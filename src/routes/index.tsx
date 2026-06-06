@@ -42,7 +42,14 @@ function Home() {
 
   const heroC  = (pageContent?.find((s) => s.section_key === "home.hero")?.content_json  ?? {}) as Record<string, string>;
   const introC = (pageContent?.find((s) => s.section_key === "home.intro")?.content_json ?? {}) as Record<string, string>;
-  const statsC = (pageContent?.find((s) => s.section_key === "home.stats")?.content_json ?? {}) as Record<string, string>;
+  const statsC   = (pageContent?.find((s) => s.section_key === "home.stats")?.content_json   ?? {}) as Record<string, string>;
+  const capitalC = (pageContent?.find((s) => s.section_key === "home.capital")?.content_json ?? {}) as Record<string, string>;
+
+  const capitals = [
+    { label: "Authorized Capital", value: capitalC.authorized_value || "10,00,00,000", suffix: capitalC.authorized_suffix || "NPR" },
+    { label: "Paid Up Capital",    value: capitalC.paidup_value     || "7,50,00,000",  suffix: capitalC.paidup_suffix     || "NPR" },
+    { label: "Issued Capital",     value: capitalC.issued_value     || "7,50,00,000",  suffix: capitalC.issued_suffix     || "NPR" },
+  ];
 
   // Popup docs
   const { data: popupDocs } = useQuery({
@@ -72,7 +79,7 @@ function Home() {
       <SiteHeader transparent />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <HeroSection photos={heroPhotos ?? []} heroC={heroC} stats={stats} />
+      <HeroSection photos={heroPhotos ?? []} heroC={heroC} stats={stats} capitals={capitals} />
 
       {/* ── WHO WE ARE ───────────────────────────────────────────────────── */}
       <section className="py-20">
@@ -225,10 +232,11 @@ function Home() {
 
 // ── Hero Section ─────────────────────────────────────────────────────────────
 
-type Photo = { id: string; url: string; alt_text: string | null; caption: string | null };
-type Stat  = { k: string; suffix: string; v: string };
+type Photo   = { id: string; url: string; alt_text: string | null; caption: string | null };
+type Stat    = { k: string; suffix: string; v: string };
+type Capital = { label: string; value: string; suffix: string };
 
-function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<string, string>; stats: Stat[] }) {
+function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; heroC: Record<string, string>; stats: Stat[]; capitals: Capital[] }) {
   const [idx, setIdx]       = useState(0);
   const [paused, setPaused] = useState(false);
   const hasPhotos = photos.length > 0;
@@ -316,7 +324,7 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
           </div>
         </div>
 
-        {/* ── Stats bar — sits above the bottom edge ── */}
+        {/* ── Stats bar ── */}
         <div className="relative border-t border-white/10 bg-primary/60 backdrop-blur-md">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px px-6 md:grid-cols-4">
             {stats.map((s, i) => (
@@ -325,6 +333,21 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
                   {s.k}<span className="text-accent">{s.suffix}</span>
                 </div>
                 <p className="mt-1 text-xs uppercase tracking-wider text-white/60">{s.v}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Capital bar ── */}
+        <div className="relative border-t border-white/10 bg-black/30 backdrop-blur-md">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-px px-6 sm:grid-cols-3">
+            {capitals.map((cap, i) => (
+              <div key={cap.label} className={`py-5 text-center ${i !== 0 ? "sm:border-l border-white/10" : ""}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">{cap.label}</p>
+                <div className="mt-1 font-mono text-xl font-bold text-white md:text-2xl">
+                  <RollingNumber value={cap.value} />
+                  <span className="ml-1.5 text-sm font-normal text-accent">{cap.suffix}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -371,6 +394,49 @@ function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+function RollingNumber({ value }: { value: string }) {
+  const [displayed, setDisplayed] = useState("0");
+  const [animating, setAnimating] = useState(false);
+
+  useEffect(() => {
+    // Small delay so the animation fires after mount (visible on first load)
+    const delay = setTimeout(() => {
+      setAnimating(true);
+      // Extract numeric portion and animate digit-by-digit
+      const target = value;
+      const chars = target.split("");
+      let frame = 0;
+      const totalFrames = 40;
+      const timer = setInterval(() => {
+        frame++;
+        if (frame >= totalFrames) {
+          setDisplayed(target);
+          setAnimating(false);
+          clearInterval(timer);
+          return;
+        }
+        // Build scrambled version that converges char by char
+        const progress = frame / totalFrames;
+        const revealed = Math.floor(progress * chars.length);
+        const scrambled = chars.map((ch, ci) => {
+          if (ci < revealed) return ch;
+          if (/[0-9]/.test(ch)) return String(Math.floor(Math.random() * 10));
+          return ch;
+        }).join("");
+        setDisplayed(scrambled);
+      }, 30);
+      return () => clearInterval(timer);
+    }, 300);
+    return () => clearTimeout(delay);
+  }, [value]);
+
+  return (
+    <span className={`inline-block transition-opacity duration-300 ${animating ? "opacity-80" : "opacity-100"}`}>
+      {displayed}
+    </span>
+  );
+}
 
 function IntroBody({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);

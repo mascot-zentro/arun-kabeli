@@ -56,6 +56,19 @@ const TEMPLATES: Template[] = [
     ],
   },
   {
+    key: "home.capital",
+    label: "Home — Capital bar",
+    description: "Authorized Capital, Paid Up Capital, and Issued Capital shown as a rolling-number bar below the hero stats.",
+    fields: [
+      { key: "authorized_value",  label: "Authorized Capital — Amount",  type: "text", placeholder: "10,00,00,000" },
+      { key: "authorized_suffix", label: "Authorized Capital — Suffix",  type: "text", placeholder: "NPR" },
+      { key: "paidup_value",      label: "Paid Up Capital — Amount",     type: "text", placeholder: "7,50,00,000" },
+      { key: "paidup_suffix",     label: "Paid Up Capital — Suffix",     type: "text", placeholder: "NPR" },
+      { key: "issued_value",      label: "Issued Capital — Amount",      type: "text", placeholder: "7,50,00,000" },
+      { key: "issued_suffix",     label: "Issued Capital — Suffix",      type: "text", placeholder: "NPR" },
+    ],
+  },
+  {
     key: "about.story",
     label: "About — Our story",
     description: "Company history and background.",
