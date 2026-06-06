@@ -133,3 +133,9 @@
 }
 .glow-hover { transition: box-shadow .3s, transform .3s; }
 .glow-hover:hover { box-shadow: var(--shadow-glow); transform: translateY(-4px); }
+
+/* Light bulb ray pulse animation */
+@keyframes ray-pulse {
+  from { opacity: 0.4; transform: scaleX(0.8); }
+  to   { opacity: 1;   transform: scaleX(1.2); }
+}
