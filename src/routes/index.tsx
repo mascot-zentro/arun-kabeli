@@ -449,114 +449,142 @@ function LightBulb() {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       aria-label={on ? "Turn light off" : "Turn light on"}
-      className="group relative flex flex-col items-center focus:outline-none"
-      style={{ filter: on ? `drop-shadow(0 0 ${hover ? "40px" : "24px"} #00E5C3)` : "none", transition: "filter 0.3s ease" }}
+      className="group relative flex flex-col items-center focus:outline-none select-none"
+      style={{
+        filter: on ? `drop-shadow(0 0 ${hover ? "48px" : "28px"} #FFD700) drop-shadow(0 0 ${hover ? "80px" : "48px"} rgba(255,200,0,0.35))` : "none",
+        transition: "filter 0.4s ease",
+      }}
     >
-      {/* Wire from ceiling */}
-      <div
-        className="w-[2px] rounded-full transition-all duration-500"
-        style={{
-          height: "48px",
-          background: on
-            ? "linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(0,229,195,0.6))"
-            : "rgba(255,255,255,0.15)",
-        }}
-      />
+      {/* Cord */}
+      <div style={{
+        width: "3px",
+        height: "44px",
+        borderRadius: "2px",
+        background: on
+          ? "linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(160,140,100,0.8))"
+          : "linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(120,110,90,0.5))",
+        transition: "background 0.4s",
+      }} />
 
-      {/* Bulb SVG */}
-      <svg
-        width="64" height="80"
-        viewBox="0 0 64 80"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="transition-transform duration-200 group-hover:scale-110"
+      {/* Bulb SVG — viewBox sized for the realistic shape */}
+      <svg width="96" height="120" viewBox="0 0 96 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+        className="transition-transform duration-200 group-hover:scale-105"
       >
-        {/* Outer glow layer when on */}
+        <defs>
+          {/* ON globe — warm yellow */}
+          <radialGradient id="globeOn" cx="38%" cy="30%" r="65%">
+            <stop offset="0%"   stopColor="#FFFDE0" />
+            <stop offset="30%"  stopColor="#FFE566" />
+            <stop offset="70%"  stopColor="#FFAE00" />
+            <stop offset="100%" stopColor="#CC7A00" stopOpacity="0.9" />
+          </radialGradient>
+          {/* OFF globe — cool white/grey */}
+          <radialGradient id="globeOff" cx="38%" cy="30%" r="65%">
+            <stop offset="0%"   stopColor="#F0F0F0" />
+            <stop offset="40%"  stopColor="#D0D0D8" />
+            <stop offset="100%" stopColor="#8890A0" stopOpacity="0.9" />
+          </radialGradient>
+          {/* Base metal gradient */}
+          <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#6B7280" />
+            <stop offset="20%"  stopColor="#9CA3AF" />
+            <stop offset="50%"  stopColor="#D1D5DB" />
+            <stop offset="80%"  stopColor="#9CA3AF" />
+            <stop offset="100%" stopColor="#6B7280" />
+          </linearGradient>
+          {/* Glow filter */}
+          <filter id="filamentGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        {/* ── Outer ambient glow (on only) ── */}
         {on && (
-          <ellipse cx="32" cy="34" rx="26" ry="26"
-            fill="#00E5C3" fillOpacity={hover ? "0.22" : "0.13"}
-            className="transition-all duration-300"
+          <ellipse cx="48" cy="44" rx={hover ? "44" : "38"} ry={hover ? "44" : "38"}
+            fill="#FFD700" fillOpacity={hover ? "0.18" : "0.10"}
+            style={{ transition: "all 0.3s ease" }}
           />
         )}
 
-        {/* Glass globe */}
-        <ellipse cx="32" cy="32" rx="20" ry="20"
-          fill={on ? "url(#bulbGradOn)" : "url(#bulbGradOff)"}
-          className="transition-all duration-500"
+        {/* ── Globe body ── */}
+        {/* Shadow beneath globe */}
+        <ellipse cx="48" cy="72" rx="22" ry="4" fill="rgba(0,0,0,0.18)" />
+        {/* Main globe circle */}
+        <circle cx="48" cy="44" r="32"
+          fill={on ? "url(#globeOn)" : "url(#globeOff)"}
+          style={{ transition: "fill 0.4s ease" }}
+        />
+        {/* Globe rim (dark edge) */}
+        <circle cx="48" cy="44" r="32"
+          fill="none" stroke={on ? "rgba(160,80,0,0.3)" : "rgba(80,90,110,0.3)"} strokeWidth="1"
         />
 
-        {/* Specular highlight */}
-        <ellipse cx="25" cy="24" rx="5" ry="4"
-          fill="white" fillOpacity={on ? "0.35" : "0.08"}
-          className="transition-all duration-500"
+        {/* ── Specular highlights ── */}
+        {/* Main large highlight */}
+        <ellipse cx="36" cy="28" rx="10" ry="8"
+          fill="white" fillOpacity={on ? "0.55" : "0.45"}
+          style={{ transition: "opacity 0.4s" }}
+        />
+        {/* Small secondary highlight */}
+        <ellipse cx="54" cy="22" rx="4" ry="3"
+          fill="white" fillOpacity={on ? "0.35" : "0.25"}
         />
 
-        {/* Filament */}
+        {/* ── Filament supports (vertical wires inside globe) ── */}
+        <line x1="40" y1="50" x2="40" y2="70" stroke={on ? "#C87400" : "#8890A0"} strokeWidth="1" opacity="0.7"/>
+        <line x1="56" y1="50" x2="56" y2="70" stroke={on ? "#C87400" : "#8890A0"} strokeWidth="1" opacity="0.7"/>
+
+        {/* ── Filament (the W-shaped coil) ── */}
         <path
-          d="M26 38 Q28 32 30 36 Q32 40 34 34 Q36 28 38 38"
-          stroke={on ? "#FFE066" : "rgba(255,255,255,0.2)"}
-          strokeWidth="1.5"
+          d="M38 58 Q40 50 43 56 Q46 62 48 53 Q50 44 53 52 Q56 60 58 52"
+          stroke={on ? "#FFF5A0" : "#A0A8B8"}
+          strokeWidth="2"
           strokeLinecap="round"
           fill="none"
-          className="transition-all duration-300"
-          style={{ filter: on ? "drop-shadow(0 0 3px #FFE066)" : "none" }}
+          filter={on ? "url(#filamentGlow)" : "none"}
+          style={{ transition: "stroke 0.4s, filter 0.4s" }}
+        />
+        {/* Filament support base bar */}
+        <line x1="38" y1="68" x2="58" y2="68"
+          stroke={on ? "#C87400" : "#8890A0"} strokeWidth="1.5" strokeLinecap="round" opacity="0.6"
         />
 
-        {/* Base / cap */}
-        <rect x="24" y="50" width="16" height="5" rx="2"
-          fill={on ? "rgba(0,229,195,0.5)" : "rgba(255,255,255,0.15)"}
-          className="transition-all duration-500"
-        />
-        <rect x="26" y="55" width="12" height="4" rx="1.5"
-          fill={on ? "rgba(0,229,195,0.35)" : "rgba(255,255,255,0.1)"}
-          className="transition-all duration-500"
-        />
-        <rect x="28" y="59" width="8" height="4" rx="1.5"
-          fill={on ? "rgba(0,229,195,0.25)" : "rgba(255,255,255,0.08)"}
-          className="transition-all duration-500"
-        />
+        {/* ── Base / screw cap — 3 stepped rings ── */}
+        {/* Ring 1 (widest) */}
+        <rect x="30" y="72" width="36" height="9" rx="2" fill="url(#baseGrad)" />
+        <rect x="30" y="72" width="36" height="2" rx="1" fill="rgba(255,255,255,0.15)" />
+        {/* Ring 2 */}
+        <rect x="33" y="81" width="30" height="8" rx="2" fill="url(#baseGrad)" />
+        <rect x="33" y="81" width="30" height="2" rx="1" fill="rgba(255,255,255,0.12)" />
+        {/* Ring 3 (narrowest) */}
+        <rect x="36" y="89" width="24" height="8" rx="2" fill="url(#baseGrad)" />
+        <rect x="36" y="89" width="24" height="2" rx="1" fill="rgba(255,255,255,0.10)" />
+        {/* Bottom tip */}
+        <rect x="42" y="97" width="12" height="5" rx="2.5" fill="#5A6270" />
 
-        {/* Rays when on */}
-        {on && (
-          <g opacity={hover ? "0.9" : "0.6"} className="transition-opacity duration-300">
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => (
-              <line
-                key={deg}
-                x1={32 + 23 * Math.cos((deg * Math.PI) / 180)}
-                y1={32 + 23 * Math.sin((deg * Math.PI) / 180)}
-                x2={32 + 30 * Math.cos((deg * Math.PI) / 180)}
-                y2={32 + 30 * Math.sin((deg * Math.PI) / 180)}
-                stroke="#00E5C3"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                style={{
-                  animation: `ray-pulse 2s ease-in-out ${i * 0.25}s infinite alternate`,
-                }}
-              />
-            ))}
-          </g>
-        )}
-
-        {/* Gradients */}
-        <defs>
-          <radialGradient id="bulbGradOn" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#FFFBE6" />
-            <stop offset="40%" stopColor="#00E5C3" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#0B4D6C" stopOpacity="0.9" />
-          </radialGradient>
-          <radialGradient id="bulbGradOff" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.12)" />
-            <stop offset="100%" stopColor="rgba(11,22,40,0.8)" />
-          </radialGradient>
-        </defs>
+        {/* ── Rays when ON ── */}
+        {on && [0,40,80,120,160,200,240,280,320].map((deg, i) => {
+          const rad = (deg * Math.PI) / 180;
+          const r1 = 35, r2 = 43 + (i % 2) * 4;
+          return (
+            <line key={deg}
+              x1={48 + r1 * Math.cos(rad)} y1={44 + r1 * Math.sin(rad)}
+              x2={48 + r2 * Math.cos(rad)} y2={44 + r2 * Math.sin(rad)}
+              stroke="#FFD700" strokeWidth={i % 2 === 0 ? "2.5" : "1.5"}
+              strokeLinecap="round"
+              style={{ animation: `ray-pulse 1.8s ease-in-out ${i * 0.2}s infinite alternate` }}
+            />
+          );
+        })}
       </svg>
 
       {/* Tooltip */}
       <span
-        className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/50 px-2.5 py-0.5 text-[10px] text-white/70 backdrop-blur-sm transition-opacity duration-200"
-        style={{ opacity: hover ? 1 : 0 }}
+        className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/60 px-3 py-0.5 text-[10px] text-white/80 backdrop-blur-sm pointer-events-none"
+        style={{ opacity: hover ? 1 : 0, transition: "opacity 0.2s" }}
       >
-        {on ? "Click to turn off" : "Click to turn on"}
+        {on ? "Turn off" : "Turn on"}
       </span>
     </button>
   );
