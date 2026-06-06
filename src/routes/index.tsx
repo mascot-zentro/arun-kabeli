@@ -79,7 +79,7 @@ function Home() {
       <SiteHeader transparent />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <HeroSection photos={heroPhotos ?? []} heroC={heroC} stats={stats} capitals={capitals} />
+      <HeroSection photos={heroPhotos ?? []} heroC={heroC} stats={stats} />
 
       {/* ── WHO WE ARE ───────────────────────────────────────────────────── */}
       <section className="py-20">
@@ -149,6 +149,9 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── CAPITAL ──────────────────────────────────────────────────────── */}
+      <CapitalSection capitals={capitals} />
 
       {/* ── LATEST NEWS ──────────────────────────────────────────────────── */}
       {news && news.length > 0 && (
@@ -236,7 +239,7 @@ type Photo   = { id: string; url: string; alt_text: string | null; caption: stri
 type Stat    = { k: string; suffix: string; v: string };
 type Capital = { label: string; value: string; suffix: string };
 
-function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; heroC: Record<string, string>; stats: Stat[]; capitals: Capital[] }) {
+function HeroSection({ photos, heroC, stats }: { photos: Photo[]; heroC: Record<string, string>; stats: Stat[] }) {
   const [idx, setIdx]       = useState(0);
   const [paused, setPaused] = useState(false);
   const hasPhotos = photos.length > 0;
@@ -343,24 +346,10 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
           </div>
         </div>
 
-        {/* ── Capital bar ── */}
-        <div className="relative border-t border-white/10 bg-black/30 backdrop-blur-md">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-px px-6 sm:grid-cols-3">
-            {capitals.map((cap, i) => (
-              <div key={cap.label} className={`py-5 text-center ${i !== 0 ? "sm:border-l border-white/10" : ""}`}>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">{cap.label}</p>
-                <div className="mt-1 font-mono text-xl font-bold text-white md:text-2xl">
-                  <RollingNumber value={cap.value} />
-                  <span className="ml-1.5 text-sm font-normal text-accent">{cap.suffix}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* ── Slider controls — bottom right ── */}
         {hasPhotos && photos.length > 1 && (
-          <div className="absolute bottom-40 right-6 flex items-center gap-2 md:bottom-44 md:right-10">
+          <div className="absolute bottom-24 right-6 flex items-center gap-2 md:bottom-28 md:right-10">
             {/* Dot indicators */}
             <div className="mr-2 flex gap-1.5">
               {photos.map((_, i) => (
@@ -387,7 +376,7 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
 
         {/* Caption */}
         {hasPhotos && photos[idx]?.caption && (
-          <div className="absolute bottom-40 left-6 md:bottom-44 md:left-10">
+          <div className="absolute bottom-[5.5rem] left-6 md:bottom-24 md:left-10">
             <p className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-white/60 backdrop-blur-sm">
               {photos[idx].caption}
             </p>
@@ -399,6 +388,55 @@ function HeroSection({ photos, heroC, stats, capitals }: { photos: Photo[]; hero
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+// ── Capital Section ──────────────────────────────────────────────────────────
+function CapitalSection({ capitals }: { capitals: Capital[] }) {
+  const icons = ["🏦", "💰", "📈"];
+  const colors = [
+    "from-accent/20 to-accent/5 border-accent/20",
+    "from-primary/20 to-primary/5 border-primary/20",
+    "from-emerald-500/20 to-emerald-500/5 border-emerald-500/20",
+  ];
+  const textColors = ["text-accent", "text-primary", "text-emerald-600 dark:text-emerald-400"];
+
+  return (
+    <section className="relative overflow-hidden border-y bg-secondary/20 py-16">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "24px 24px" }} />
+
+      <div className="relative mx-auto max-w-7xl px-6">
+        {/* Header */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Financials</p>
+          <h2 className="mt-2 font-display text-3xl font-bold md:text-4xl">Capital Structure</h2>
+          <p className="mt-3 max-w-lg text-sm text-muted-foreground">Authorised, paid-up, and issued capital as registered with the Securities Board of Nepal.</p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid gap-5 sm:grid-cols-3">
+          {capitals.map((cap, i) => (
+            <div key={cap.label} className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 shadow-sm ${colors[i]}`}>
+              {/* Icon */}
+              <div className="mb-4 text-3xl">{icons[i]}</div>
+
+              {/* Label */}
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">{cap.label}</p>
+
+              {/* Value */}
+              <div className={`mt-2 font-mono text-3xl font-bold md:text-4xl ${textColors[i]}`}>
+                <RollingNumber value={cap.value} />
+              </div>
+              <p className="mt-1 font-mono text-sm font-medium text-muted-foreground">{cap.suffix}</p>
+
+              {/* Decorative circle */}
+              <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 ${i === 0 ? "bg-accent" : i === 1 ? "bg-primary" : "bg-emerald-500"}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // ── Interactive Light Bulb ───────────────────────────────────────────────────
 function LightBulb() {
