@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import type React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { FileText, ArrowLeft, MapPin, Zap, Activity, X, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { FileText, ArrowLeft, MapPin, Zap, Activity, X, ChevronLeft, ChevronRight, Download, Droplets, Mountain, Calendar, Users, Shield, Ruler, Clock, DollarSign, Leaf, Building2, Globe } from "lucide-react";
 
 export const Route = createFileRoute("/projects/$slug")({
   head: ({ params }) => ({
@@ -24,6 +25,18 @@ const STATUS_COLORS: Record<string, string> = {
   construction: "bg-blue-500/20 text-blue-300 border-blue-400/30",
   operational:  "bg-green-500/20 text-green-300 border-green-400/30",
 };
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  zap: Zap, droplets: Droplets, mountain: Mountain, "map-pin": MapPin,
+  calendar: Calendar, users: Users, activity: Activity, shield: Shield,
+  ruler: Ruler, clock: Clock, dollar: DollarSign, leaf: Leaf,
+  building: Building2, globe: Globe,
+};
+
+function FeatureIcon({ name }: { name: string }) {
+  const Icon = ICON_MAP[name] ?? Zap;
+  return <Icon className="h-5 w-5 text-accent" />;
+}
 
 function ProjectDetail() {
   const { slug } = Route.useParams();
@@ -153,6 +166,28 @@ function ProjectDetail() {
           </div>
         </div>
       </section>
+
+      {/* ── Salient Features ── */}
+      {(project as any).salient_features?.length > 0 && (
+        <section className="border-b bg-secondary/30 py-12">
+          <div className="mx-auto max-w-7xl px-6">
+            <h2 className="mb-8 font-display text-2xl font-bold">Salient Features</h2>
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {((project as any).salient_features as Array<{ id: string; icon: string; label: string; value: string }>).map((feat) => (
+                <div key={feat.id} className="flex items-start gap-3 rounded-xl border bg-card p-4 shadow-sm">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/8">
+                    <FeatureIcon name={feat.icon} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{feat.label}</p>
+                    <p className="mt-0.5 font-medium leading-tight text-foreground">{feat.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Description ── */}
       {paragraphs.length > 0 && (

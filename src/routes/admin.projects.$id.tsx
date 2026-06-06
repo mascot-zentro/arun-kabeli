@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Save, Trash2, Eye, ExternalLink } from "lucide-react";
@@ -9,6 +9,8 @@ export const Route = createFileRoute("/admin/projects/$id")({ component: AdminPr
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+type SalientFeature = { id: string; icon: string; label: string; value: string };
 
 type Project = {
   id: string;
@@ -19,6 +21,7 @@ type Project = {
   status: string;
   description: string | null;
   cover_photo_url: string | null;
+  salient_features: SalientFeature[];
   sort_order: number;
   is_published: boolean;
 };
@@ -50,7 +53,7 @@ function AdminProjectEdit() {
   const [form, setForm] = useState<Partial<Project>>({
     name: "", slug: "", location: "", capacity_mw: null,
     status: "planning", description: "", cover_photo_url: null,
-    sort_order: 0, is_published: true,
+    salient_features: [], sort_order: 0, is_published: true,
   });
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -58,7 +61,10 @@ function AdminProjectEdit() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (existing) setForm(existing);
+    if (existing) setForm({
+      ...existing,
+      salient_features: (existing as any).salient_features ?? [],
+    });
   }, [existing]);
 
   function set(patch: Partial<Project>) { setForm((f) => ({ ...f, ...patch })); }
@@ -74,6 +80,7 @@ function AdminProjectEdit() {
       status: form.status ?? "planning",
       description: form.description || null,
       cover_photo_url: form.cover_photo_url || null,
+      salient_features: form.salient_features ?? [],
       sort_order: form.sort_order ?? 0,
       is_published: form.is_published ?? true,
     };
@@ -251,6 +258,93 @@ function AdminProjectEdit() {
               placeholder="Describe the project — its history, technology, location, capacity, impact on the community and national grid…"
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
+          </div>
+
+          {/* Salient features card */}
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Salient Features</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">Key facts shown as a highlights grid on the project page.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => set({
+                  salient_features: [...(form.salient_features ?? []), { id: Date.now().toString(), icon: "zap", label: "", value: "" }]
+                })}
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-secondary transition"
+              >
+                + Add feature
+              </button>
+            </div>
+
+            {(form.salient_features ?? []).length === 0 && (
+              <div className="flex items-center justify-center rounded-lg border border-dashed py-8 text-sm text-muted-foreground">
+                No salient features yet — click "Add feature" to add one.
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {(form.salient_features ?? []).map((feat, idx) => (
+                <div key={feat.id} className="grid grid-cols-[110px_1fr_1fr_36px] gap-2 items-center">
+                  {/* Icon picker */}
+                  <select
+                    value={feat.icon}
+                    onChange={(e) => {
+                      const updated = [...(form.salient_features ?? [])];
+                      updated[idx] = { ...feat, icon: e.target.value };
+                      set({ salient_features: updated });
+                    }}
+                    className="rounded-lg border bg-background px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="zap">⚡ Energy</option>
+                    <option value="droplets">💧 Water</option>
+                    <option value="mountain">⛰ Mountain</option>
+                    <option value="map-pin">📍 Location</option>
+                    <option value="calendar">📅 Date</option>
+                    <option value="users">👥 Community</option>
+                    <option value="activity">📈 Activity</option>
+                    <option value="shield">🛡 Compliance</option>
+                    <option value="ruler">📏 Dimension</option>
+                    <option value="clock">🕐 Duration</option>
+                    <option value="dollar">💰 Investment</option>
+                    <option value="leaf">🌿 Environment</option>
+                    <option value="building">🏗 Infrastructure</option>
+                    <option value="globe">🌐 Transmission</option>
+                  </select>
+                  {/* Label */}
+                  <input
+                    value={feat.label}
+                    onChange={(e) => {
+                      const updated = [...(form.salient_features ?? [])];
+                      updated[idx] = { ...feat, label: e.target.value };
+                      set({ salient_features: updated });
+                    }}
+                    placeholder="Label (e.g. Plant Type)"
+                    className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                  {/* Value */}
+                  <input
+                    value={feat.value}
+                    onChange={(e) => {
+                      const updated = [...(form.salient_features ?? [])];
+                      updated[idx] = { ...feat, value: e.target.value };
+                      set({ salient_features: updated });
+                    }}
+                    placeholder="Value (e.g. Run-of-River)"
+                    className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                  {/* Remove */}
+                  <button
+                    type="button"
+                    onClick={() => set({ salient_features: (form.salient_features ?? []).filter((_, i) => i !== idx) })}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border text-destructive hover:bg-destructive/10 transition"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Gallery card */}
