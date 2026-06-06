@@ -5,7 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, Trash2, Eye, FileText, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Upload, Trash2, Eye, FileText, GripVertical } from "lucide-react";
 
 export const Route = createFileRoute("/admin/documents")({ component: AdminDocs });
 
@@ -19,7 +19,6 @@ type Doc = {
   uploaded_at: string;
   show_as_popup: boolean | null;
   popup_sort_order: number | null;
-  sort_order: number;
 };
 
 function fmtSize(bytes: number | null) {
@@ -39,7 +38,7 @@ function AdminDocs() {
   const { data: docs } = useQuery({
     queryKey: ["admin-docs"],
     queryFn: async () =>
-      (await supabase.from("documents").select("*").order("sort_order", { ascending: true })).data ?? [],
+      (await supabase.from("documents").select("*").order("uploaded_at", { ascending: false })).data ?? [],
   });
 
   const categories = Array.from(new Set((docs ?? []).map((d: Doc) => d.category).filter(Boolean))) as string[];
@@ -50,24 +49,7 @@ function AdminDocs() {
     qc.invalidateQueries({ queryKey: ["public-documents"] });
   }
 
-  // ── Move a document up or down by swapping sort_order with its neighbour ──
-  async function move(id: string, dir: -1 | 1) {
-    const list = [...(docs ?? [])] as Doc[];
-    const idx = list.findIndex((d) => d.id === id);
-    if (idx < 0) return;
-    const swapIdx = idx + dir;
-    if (swapIdx < 0 || swapIdx >= list.length) return;
 
-    const a = list[idx];
-    const b = list[swapIdx];
-
-    // Swap their sort_order values
-    await Promise.all([
-      supabase.from("documents").update({ sort_order: b.sort_order }).eq("id", a.id),
-      supabase.from("documents").update({ sort_order: a.sort_order }).eq("id", b.id),
-    ]);
-    invalidate();
-  }
 
   async function confirmUpload() {
     if (!pendingFile) return;
@@ -79,14 +61,11 @@ function AdminDocs() {
     const { error: upErr } = await supabase.storage.from("documents").upload(path, file);
     if (upErr) { toast.error(upErr.message); setUploading(false); return; }
     const { data } = supabase.storage.from("documents").getPublicUrl(path);
-    // New doc gets sort_order = last + 1
-    const maxOrder = Math.max(0, ...((docs ?? []) as Doc[]).map((d) => d.sort_order));
     const { error } = await supabase.from("documents").insert({
       title: file.name,
       file_url: data.publicUrl,
       file_size_bytes: file.size,
       category,
-      sort_order: maxOrder + 1,
     });
     setUploading(false);
     setPendingFile(null);
@@ -100,12 +79,6 @@ function AdminDocs() {
     const { error } = await supabase.from("documents").delete().eq("id", id);
     if (error) toast.error(error.message);
     else {
-      invalidate();
-      // Re-compact sort_order after deletion
-      const remaining = ((docs ?? []) as Doc[]).filter((d) => d.id !== id);
-      await Promise.all(remaining.map((d, i) =>
-        supabase.from("documents").update({ sort_order: i }).eq("id", d.id)
-      ));
       invalidate();
     }
   }
@@ -150,7 +123,7 @@ function AdminDocs() {
       <div className="mt-5 overflow-hidden rounded-xl border bg-card shadow-sm">
         {/* Column headers */}
         {docs && docs.length > 0 && (
-          <div className="grid grid-cols-[28px_28px_1fr_120px_100px_90px_56px_36px_36px] items-center gap-2 border-b bg-secondary/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="grid grid-cols-[28px_1fr_120px_100px_90px_56px_36px_36px] items-center gap-2 border-b bg-secondary/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             <span></span>
             <span></span>
             <span>Title</span>
@@ -173,25 +146,7 @@ function AdminDocs() {
               <GripVertical className="h-4 w-4" />
             </div>
 
-            {/* Move up/down */}
-            <div className="flex flex-col gap-0.5">
-              <button
-                onClick={() => move(d.id, -1)}
-                disabled={idx === 0}
-                className="flex h-4 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-20"
-                title="Move up"
-              >
-                <ChevronUp className="h-3 w-3" />
-              </button>
-              <button
-                onClick={() => move(d.id, 1)}
-                disabled={idx === (docs?.length ?? 0) - 1}
-                className="flex h-4 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary disabled:opacity-20"
-                title="Move down"
-              >
-                <ChevronDown className="h-3 w-3" />
-              </button>
-            </div>
+
 
             {/* Title */}
             <div className="flex min-w-0 items-center gap-2">

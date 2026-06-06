@@ -22,7 +22,7 @@ export const Route = createFileRoute("/projects")({
 function Projects() {
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
-    queryFn: async () => (await supabase.from("projects").select("*").eq("is_published", true).order("sort_order")).data ?? [],
+    queryFn: async () => (await supabase.from("projects").select("*").eq("is_published", true).order("created_at", { ascending: true })).data ?? [],
   });
 
   return (

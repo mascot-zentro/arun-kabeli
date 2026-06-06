@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Mountain } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Mountain } from "lucide-react";
 
 export const Route = createFileRoute("/admin/projects")({ component: AdminProjects });
 
@@ -22,7 +22,7 @@ function AdminProjects() {
   const { data: projects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () =>
-      (await supabase.from("projects").select("*").order("sort_order")).data ?? [],
+      (await supabase.from("projects").select("*").order("created_at", { ascending: true })).data ?? [],
   });
 
   function invalidate() {
@@ -44,19 +44,6 @@ function AdminProjects() {
     invalidate();
   }
 
-  async function move(e: React.MouseEvent, id: string, dir: -1 | 1) {
-    e.preventDefault(); e.stopPropagation();
-    const list = [...(projects ?? [])] as any[];
-    const idx = list.findIndex((p) => p.id === id);
-    if (idx < 0) return;
-    const swapIdx = idx + dir;
-    if (swapIdx < 0 || swapIdx >= list.length) return;
-    await Promise.all([
-      supabase.from("projects").update({ sort_order: list[swapIdx].sort_order }).eq("id", list[idx].id),
-      supabase.from("projects").update({ sort_order: list[idx].sort_order }).eq("id", list[swapIdx].id),
-    ]);
-    invalidate();
-  }
 
   return (
     <div>
@@ -80,7 +67,7 @@ function AdminProjects() {
 
       {/* Card grid */}
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {(projects ?? []).map((p: any, idx: number) => (
+        {(projects ?? []).map((p: any) => (
           <Link
             key={p.id}
             to="/admin/projects/$id"
@@ -100,15 +87,7 @@ function AdminProjects() {
               <span className={`absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[p.status ?? "planning"] ?? ""}`}>
                 {STATUS_LABELS[p.status ?? "planning"] ?? p.status}
               </span>
-              {/* Sort controls — top right */}
-              <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={(e) => move(e, p.id, -1)} disabled={idx === 0} className="flex h-6 w-6 items-center justify-center rounded bg-black/50 text-white hover:bg-black/70 disabled:opacity-30">
-                  <ChevronUp className="h-3 w-3" />
-                </button>
-                <button onClick={(e) => move(e, p.id, 1)} disabled={idx === (projects?.length ?? 0) - 1} className="flex h-6 w-6 items-center justify-center rounded bg-black/50 text-white hover:bg-black/70 disabled:opacity-30">
-                  <ChevronDown className="h-3 w-3" />
-                </button>
-              </div>
+
             </div>
 
             {/* Info */}
