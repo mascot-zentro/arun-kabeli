@@ -56,6 +56,19 @@ const TEMPLATES: Template[] = [
     ],
   },
   {
+    key: "home.stock",
+    label: "Home — AKPL Stock info",
+    description: "Manually updated AKPL share price shown in the Investor Relations section.",
+    fields: [
+      { key: "price",          label: "Last Traded Price (LTP)", type: "text", placeholder: "272.00" },
+      { key: "change",         label: "Change (e.g. +3.30 or -2.70)", type: "text", placeholder: "+3.30" },
+      { key: "change_pct",     label: "Change % (e.g. +1.23 or -0.98)", type: "text", placeholder: "+1.23" },
+      { key: "volume",         label: "Volume (shares traded)", type: "text", placeholder: "62,142" },
+      { key: "prev_close",     label: "Previous Close", type: "text", placeholder: "269.70" },
+      { key: "as_of",          label: "As of date/time", type: "text", placeholder: "Jun 7, 2026 · 3:00 PM" },
+    ],
+  },
+  {
     key: "home.capital",
     label: "Home — Capital bar",
     description: "Authorized Capital, Paid Up Capital, and Issued Capital shown as a rolling-number bar below the hero stats.",
