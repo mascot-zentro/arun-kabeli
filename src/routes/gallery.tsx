@@ -35,38 +35,46 @@ function Gallery() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"default" | "newest" | "oldest">("default");
 
-  const { data: photos } = useQuery({
-    queryKey: ["gallery"],
-    queryFn: async () =>
-      (await supabase.from("photos").select("*, projects(name)").order("sort_order")).data ?? [],
-  });
-
   const { data: projects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () =>
       (await supabase.from("projects").select("id, name").eq("is_published", true).order("sort_order")).data ?? [],
   });
 
+  const { data: photos } = useQuery({
+    queryKey: ["gallery"],
+    queryFn: async () =>
+      (await supabase.from("photos").select("*").order("sort_order")).data ?? [],
+  });
+
+  // Join project name onto each photo in JS (avoids PostgREST FK join ambiguity)
+  const projectMap = Object.fromEntries((projects ?? []).map((p: any) => [p.id, p.name]));
+  const photosWithProject = (photos ?? []).map((p: any) => ({
+    ...p,
+    projectName: p.project_id ? (projectMap[p.project_id] ?? null) : null,
+  }));
+
   // Build filter list
+  // Only show project pills that actually have photos
+  const usedProjectNames = new Set(photosWithProject.map((p: any) => p.projectName).filter(Boolean));
   const projectFilters = [
     "All",
     "Untagged",
-    ...(projects ?? []).map((p: any) => p.name),
+    ...(projects ?? []).filter((p: any) => usedProjectNames.has(p.name)).map((p: any) => p.name),
   ];
 
   // Filter
-  const filtered = (photos ?? []).filter((p: any) => {
-    const projectName = p.projects?.name ?? null;
+  const filtered = photosWithProject.filter((p: any) => {
     const matchProject =
       activeProject === "All" ||
-      (activeProject === "Untagged" && !projectName) ||
-      projectName === activeProject;
+      (activeProject === "Untagged" && !p.projectName) ||
+      p.projectName === activeProject;
     const q = search.toLowerCase();
     const matchSearch =
       !q ||
       (p.caption ?? "").toLowerCase().includes(q) ||
       (p.alt_text ?? "").toLowerCase().includes(q) ||
-      (projectName ?? "").toLowerCase().includes(q);
+      (p.projectName ?? "").toLowerCase().includes(q);
     return matchProject && matchSearch;
   });
 
@@ -91,7 +99,7 @@ function Gallery() {
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Visual Archive</p>
           <h1 className="mt-3 font-display text-5xl font-bold md:text-6xl">Gallery</h1>
           <p className="mt-4 text-primary-foreground/70">
-            {(photos ?? []).length} photo{(photos ?? []).length !== 1 ? "s" : ""} from across our projects.
+            {photosWithProject.length} photo{photosWithProject.length !== 1 ? "s" : ""} from across our projects.
           </p>
         </div>
       </section>
@@ -167,14 +175,14 @@ function Gallery() {
                     loading="lazy"
                   />
                   {/* Caption overlay — always visible at bottom */}
-                  {(p.caption || p.projects?.name) && (
+                  {(p.caption || p.projectName) && (
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-8">
                       {p.caption && (
                         <p className="text-left text-xs font-medium leading-snug text-white">{p.caption}</p>
                       )}
-                      {p.projects?.name && (
+                      {p.projectName && (
                         <span className="mt-1 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">
-                          {p.projects.name}
+                          {p.projectName}
                         </span>
                       )}
                     </div>
@@ -234,14 +242,14 @@ function Gallery() {
               className="max-h-[78vh] max-w-full rounded-xl object-contain shadow-2xl"
             />
             {/* Caption + project tag in lightbox */}
-            {(lightboxPhoto.caption || (lightboxPhoto as any).projects?.name) && (
+            {(lightboxPhoto.caption || (lightboxPhoto as any).projectName) && (
               <div className="flex flex-col items-center gap-1.5 text-center">
                 {lightboxPhoto.caption && (
                   <p className="max-w-lg text-sm text-white/90 leading-relaxed">{lightboxPhoto.caption}</p>
                 )}
-                {(lightboxPhoto as any).projects?.name && (
+                {(lightboxPhoto as any).projectName && (
                   <span className="rounded-full bg-accent/20 px-3 py-0.5 text-xs font-semibold text-accent">
-                    {(lightboxPhoto as any).projects.name}
+                    {(lightboxPhoto as any).projectName}
                   </span>
                 )}
               </div>
