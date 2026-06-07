@@ -11,11 +11,12 @@ type StockData = {
   updatedAt: string;
 };
 
-// Supabase Edge Function proxy (CORS-safe, tries multiple sources server-side)
-const EDGE_FN     = "https://pwwutgitwynwlufcvkvz.supabase.co/functions/v1/akpl-price";
-// Direct fallbacks (browser fetch, may hit CORS on some)
-const API_V2      = "https://nepsetty.kokomo.workers.dev/api/stock?symbol=AKPL";
-const NEPSE_API   = "https://www.nepalstock.com/api/nots/securityDailyTradeStat/2757";
+// allorigins proxies the NEPSE API server-side — no CORS issues
+const PROXY = (url: string) =>
+  `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+
+const NEPSE_URL   = "https://www.nepalstock.com/api/nots/securityDailyTradeStat/2757";
+const NEPSE_V2    = "https://nepsetty.kokomo.workers.dev/api/stock?symbol=AKPL";
 const REFRESH_MS  = 60_000;
 
 export function AkplTicker({ compact = false }: { compact?: boolean }) {
@@ -24,7 +25,15 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
-  // Try a list of endpoints in order, return first that works
+  // Fetch via allorigins proxy (wraps response in { contents: "..." })
+  async function proxyFetch(url: string): Promise<any> {
+    const res = await fetch(PROXY(url));
+    if (!res.ok) throw new Error(`${res.status}`);
+    const wrapper = await res.json();
+    return JSON.parse(wrapper.contents);
+  }
+
+  // Direct fetch with redirect follow
   async function tryFetch(url: string): Promise<any> {
     const res = await fetch(url, { redirect: "follow" });
     if (!res.ok) throw new Error(`${res.status}`);
@@ -50,10 +59,16 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
 
   async function fetchData() {
     setError(false);
-    const endpoints = [EDGE_FN, API_V2, NEPSE_API];
-    for (const url of endpoints) {
+    // Try: allorigins→NEPSE, allorigins→nepsetty, direct nepsetty, direct NEPSE
+    const attempts: Array<() => Promise<any>> = [
+      () => proxyFetch(NEPSE_URL),
+      () => proxyFetch(NEPSE_V2),
+      () => tryFetch(NEPSE_V2),
+      () => tryFetch(NEPSE_URL),
+    ];
+    for (const attempt of attempts) {
       try {
-        const json = await tryFetch(url);
+        const json = await attempt();
         const parsed = parseStock(json);
         if (parsed.price > 0) {
           setData(parsed);
