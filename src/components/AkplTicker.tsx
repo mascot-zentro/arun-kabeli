@@ -11,8 +11,11 @@ type StockData = {
   updatedAt: string;
 };
 
-const API_URL = "https://nepsetty.kokomo.workers.dev/api?symbol=AKPL";
-const REFRESH_MS = 60_000; // refresh every 60s
+// Primary: Official NEPSE public API (security ID 2757 = AKPL)
+const NEPSE_API   = "https://www.nepalstock.com/api/nots/securityDailyTradeStat/2757";
+// Fallback: merolagani public endpoint
+const MERO_API    = "https://merolagani.com/handlers/webrequesthandler.ashx?type=get_live_price&symbol=AKPL";
+const REFRESH_MS  = 60_000;
 
 export function AkplTicker({ compact = false }: { compact?: boolean }) {
   const [data, setData] = useState<StockData | null>(null);
@@ -21,32 +24,50 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
   async function fetchData() {
+    setError(false);
     try {
-      setError(false);
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error("Failed");
+      // Try official NEPSE API first
+      const res = await fetch(NEPSE_API, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error("NEPSE API failed");
       const json = await res.json();
-      // API returns: { id, symbol, company_name, ltp, last_updated }
-      // No prevClose/change/volume in this response — calculate change if we have a previous reading
-      const price = Number(json.ltp ?? json.price ?? json.lastTradedPrice ?? json.close ?? 0);
-      const prevClose = Number(json.prevClose ?? json.previousClose ?? json.prev_close ?? json.prev ?? 0);
-      const change = prevClose ? price - prevClose : Number(json.change ?? json.priceChange ?? 0);
-      const changePercent = prevClose
-        ? ((price - prevClose) / prevClose) * 100
-        : Number(json.changePercent ?? json.percentChange ?? json.changePercentage ?? 0);
-
+      // NEPSE API shape: { securityId, symbol, closingPrice, openingPrice, highPrice,
+      //   lowPrice, totalTradedQuantity, totalTradedValue, previousClosingPrice, lastUpdatedDateTime }
+      const price      = Number(json.closingPrice ?? json.lastTradedPrice ?? json.ltp ?? 0);
+      const prevClose  = Number(json.previousClosingPrice ?? json.prevClose ?? 0);
+      const change     = price && prevClose ? price - prevClose : 0;
+      const changePct  = prevClose ? (change / prevClose) * 100 : 0;
       setData({
-        symbol:        json.symbol        ?? json.Symbol        ?? "AKPL",
+        symbol:        json.symbol ?? "AKPL",
         price,
         prevClose,
         change,
-        changePercent,
-        volume:        Number(json.volume ?? json.totalQuantity ?? json.qty ?? 0),
-        updatedAt:     json.last_updated ?? json.updatedAt ?? json.lastUpdated ?? json.date ?? "",
+        changePercent: changePct,
+        volume:        Number(json.totalTradedQuantity ?? json.volume ?? 0),
+        updatedAt:     json.lastUpdatedDateTime ?? json.last_updated ?? "",
       });
       setLastFetched(new Date());
     } catch {
-      setError(true);
+      // Fallback: try merolagani
+      try {
+        const res2 = await fetch(MERO_API);
+        if (!res2.ok) throw new Error();
+        const json2 = await res2.json();
+        const price     = Number(json2.LastTradedPrice ?? json2.ltp ?? json2.price ?? 0);
+        const prevClose = Number(json2.PreviousClose ?? json2.prevClose ?? 0);
+        const change    = price && prevClose ? price - prevClose : 0;
+        setData({
+          symbol:        "AKPL",
+          price,
+          prevClose,
+          change,
+          changePercent: prevClose ? (change / prevClose) * 100 : 0,
+          volume:        Number(json2.TotalShareTraded ?? json2.volume ?? 0),
+          updatedAt:     json2.AsOf ?? json2.lastUpdated ?? "",
+        });
+        setLastFetched(new Date());
+      } catch {
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
