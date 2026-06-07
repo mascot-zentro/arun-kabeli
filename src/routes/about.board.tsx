@@ -51,7 +51,7 @@ function BoardPage() {
   const memberIds = c.member_ids   ? c.member_ids.split(",").filter(Boolean) : [];
 
   const boardMembers: Member[] = memberIds.length > 0
-    ? memberIds.map((id) => team?.find((m) => m.id === id)).filter((m): m is Member => m !== undefined)
+    ? memberIds.map((id) => team?.find((m) => m.id === id)).filter((m): m is NonNullable<typeof m> => m !== undefined) as Member[]
     : [];
 
   const [activeId, setActiveId] = useState<string | null>(null);

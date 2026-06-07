@@ -18,6 +18,7 @@ export const Route = createFileRoute("/news/$slug")({
 });
 
 function Article() {
+  const { slug } = Route.useParams();
   const { data: article } = useQuery({
     queryKey: ["news", slug],
     queryFn: async () => {
@@ -26,7 +27,6 @@ function Article() {
       return data;
     },
   });
-  const { slug } = Route.useParams();
   // article is undefined while loading, null when notFound throws
   if (!article) return (
     <div className="min-h-screen bg-background">
