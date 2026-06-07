@@ -66,7 +66,7 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
     // Slim inline ticker for the navbar / hero bar
     return (
       <a
-        href="https://www.nepalstock.com/company/detail/975"
+        href="https://www.nepalstock.com/company/detail/2757"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs backdrop-blur-sm transition hover:bg-white/15"
@@ -160,7 +160,7 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
                 <span className="text-xs text-muted-foreground">Hydro Power · NEPSE</span>
               </div>
               <a
-                href="https://www.nepalstock.com/company/detail/975"
+                href="https://www.nepalstock.com/company/detail/2757"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] text-muted-foreground underline hover:text-primary"

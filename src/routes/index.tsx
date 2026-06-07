@@ -165,7 +165,7 @@ function Home() {
                 Arun Kabeli Power Limited (AKPL) is publicly listed on the Nepal Stock Exchange under the Hydro Power sector. Live price data is sourced directly from NEPSE and refreshed every 60 seconds.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <a href="https://www.nepalstock.com/company/detail/975" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.nepalstock.com/company/detail/2757" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-secondary transition">
                   View on NEPSE ↗
                 </a>
