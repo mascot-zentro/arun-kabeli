@@ -26,15 +26,23 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
-      // Normalise whatever shape the API returns
+      // API returns: { id, symbol, company_name, ltp, last_updated }
+      // No prevClose/change/volume in this response — calculate change if we have a previous reading
+      const price = Number(json.ltp ?? json.price ?? json.lastTradedPrice ?? json.close ?? 0);
+      const prevClose = Number(json.prevClose ?? json.previousClose ?? json.prev_close ?? json.prev ?? 0);
+      const change = prevClose ? price - prevClose : Number(json.change ?? json.priceChange ?? 0);
+      const changePercent = prevClose
+        ? ((price - prevClose) / prevClose) * 100
+        : Number(json.changePercent ?? json.percentChange ?? json.changePercentage ?? 0);
+
       setData({
         symbol:        json.symbol        ?? json.Symbol        ?? "AKPL",
-        price:         Number(json.price         ?? json.ltp          ?? json.lastTradedPrice ?? json.close ?? 0),
-        prevClose:     Number(json.prevClose      ?? json.previousClose ?? json.prev           ?? 0),
-        change:        Number(json.change         ?? json.priceChange  ?? 0),
-        changePercent: Number(json.changePercent  ?? json.percentChange ?? json.changePercentage ?? 0),
-        volume:        Number(json.volume         ?? json.totalQuantity ?? 0),
-        updatedAt:     json.updatedAt ?? json.lastUpdated ?? json.date ?? "",
+        price,
+        prevClose,
+        change,
+        changePercent,
+        volume:        Number(json.volume ?? json.totalQuantity ?? json.qty ?? 0),
+        updatedAt:     json.last_updated ?? json.updatedAt ?? json.lastUpdated ?? json.date ?? "",
       });
       setLastFetched(new Date());
     } catch {
@@ -72,7 +80,7 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
             <span className="font-mono font-bold text-white">Rs. {data.price.toFixed(2)}</span>
             <span className={`flex items-center gap-0.5 font-mono text-[10px] font-semibold ${up ? "text-green-400" : down ? "text-red-400" : "text-white/60"}`}>
               {up ? <TrendingUp className="h-3 w-3" /> : down ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
-              {data.changePercent >= 0 ? "+" : ""}{data.changePercent.toFixed(2)}%
+              {data.changePercent !== 0 ? `${data.changePercent >= 0 ? "+" : ""}${data.changePercent.toFixed(2)}%` : "LTP"}
             </span>
           </>
         )}
@@ -125,10 +133,10 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
               <div className={`flex flex-col items-end rounded-xl px-3 py-2 ${up ? "bg-green-500/10" : down ? "bg-red-500/10" : "bg-secondary"}`}>
                 <div className={`flex items-center gap-1 text-lg font-bold ${up ? "text-green-600 dark:text-green-400" : down ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
                   {up ? <TrendingUp className="h-5 w-5" /> : down ? <TrendingDown className="h-5 w-5" /> : <Minus className="h-5 w-5" />}
-                  {data.change >= 0 ? "+" : ""}{data.change.toFixed(2)}
+                  {data.change !== 0 ? `${data.change >= 0 ? "+" : ""}${data.change.toFixed(2)}` : "—"}
                 </div>
                 <div className={`text-sm font-semibold ${up ? "text-green-600 dark:text-green-400" : down ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
-                  {data.changePercent >= 0 ? "+" : ""}{data.changePercent.toFixed(2)}%
+                  {data.changePercent !== 0 ? `${data.changePercent >= 0 ? "+" : ""}${data.changePercent.toFixed(2)}%` : "LTP"}
                 </div>
               </div>
             </div>
@@ -137,11 +145,11 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
             <div className="mt-5 grid grid-cols-2 gap-3 border-t pt-4">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Previous Close</p>
-                <p className="mt-0.5 font-mono text-sm font-semibold">Rs. {data.prevClose.toFixed(2)}</p>
+                <p className="mt-0.5 font-mono text-sm font-semibold">{data.prevClose > 0 ? `Rs. ${data.prevClose.toFixed(2)}` : "—"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Volume</p>
-                <p className="mt-0.5 font-mono text-sm font-semibold">{data.volume.toLocaleString()}</p>
+                <p className="mt-0.5 font-mono text-sm font-semibold">{data.volume > 0 ? data.volume.toLocaleString() : "—"}</p>
               </div>
             </div>
 
@@ -161,11 +169,12 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
               </a>
             </div>
 
-            {lastFetched && (
-              <p className="mt-3 text-[10px] text-muted-foreground/60">
-                Updated {lastFetched.toLocaleTimeString()} · refreshes every 60s
-              </p>
-            )}
+            <p className="mt-3 text-[10px] text-muted-foreground/60">
+              {data.updatedAt
+                ? `Market data: ${new Date(data.updatedAt).toLocaleString("en-NP", { dateStyle: "medium", timeStyle: "short" })}`
+                : lastFetched ? `Fetched ${lastFetched.toLocaleTimeString()}` : ""}
+              {" · "}refreshes every 60s
+            </p>
           </>
         )}
       </div>
