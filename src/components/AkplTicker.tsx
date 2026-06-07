@@ -11,10 +11,11 @@ type StockData = {
   updatedAt: string;
 };
 
-// Primary: Official NEPSE public API (security ID 2757 = AKPL)
+// Supabase Edge Function proxy (CORS-safe, tries multiple sources server-side)
+const EDGE_FN     = "https://pwwutgitwynwlufcvkvz.supabase.co/functions/v1/akpl-price";
+// Direct fallbacks (browser fetch, may hit CORS on some)
+const API_V2      = "https://nepsetty.kokomo.workers.dev/api/stock?symbol=AKPL";
 const NEPSE_API   = "https://www.nepalstock.com/api/nots/securityDailyTradeStat/2757";
-// Fallback: merolagani public endpoint
-const MERO_API    = "https://merolagani.com/handlers/webrequesthandler.ashx?type=get_live_price&symbol=AKPL";
 const REFRESH_MS  = 60_000;
 
 export function AkplTicker({ compact = false }: { compact?: boolean }) {
@@ -23,54 +24,49 @@ export function AkplTicker({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
+  // Try a list of endpoints in order, return first that works
+  async function tryFetch(url: string): Promise<any> {
+    const res = await fetch(url, { redirect: "follow" });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return res.json();
+  }
+
+  function parseStock(json: any): StockData {
+    // Covers: nepsetty (ltp), nepalstock (closingPrice), sharesansar (ltp/close)
+    const price     = Number(json.ltp ?? json.closingPrice ?? json.lastTradedPrice ?? json.close ?? json.LTP ?? 0);
+    const prevClose = Number(json.previousClosingPrice ?? json.prevClose ?? json.prev_close ?? json.PreviousClose ?? 0);
+    const change    = price && prevClose ? +(price - prevClose).toFixed(2) : Number(json.change ?? json.priceChange ?? 0);
+    const changePct = prevClose ? +((change / prevClose) * 100).toFixed(2) : Number(json.changePercent ?? json.percentChange ?? 0);
+    return {
+      symbol:        json.symbol ?? json.Symbol ?? "AKPL",
+      price,
+      prevClose,
+      change,
+      changePercent: changePct,
+      volume:        Number(json.totalTradedQuantity ?? json.volume ?? json.TotalShareTraded ?? json.qty ?? 0),
+      updatedAt:     json.last_updated ?? json.lastUpdatedDateTime ?? json.date ?? json.AsOf ?? "",
+    };
+  }
+
   async function fetchData() {
     setError(false);
-    try {
-      // Try official NEPSE API first
-      const res = await fetch(NEPSE_API, { headers: { "Accept": "application/json" } });
-      if (!res.ok) throw new Error("NEPSE API failed");
-      const json = await res.json();
-      // NEPSE API shape: { securityId, symbol, closingPrice, openingPrice, highPrice,
-      //   lowPrice, totalTradedQuantity, totalTradedValue, previousClosingPrice, lastUpdatedDateTime }
-      const price      = Number(json.closingPrice ?? json.lastTradedPrice ?? json.ltp ?? 0);
-      const prevClose  = Number(json.previousClosingPrice ?? json.prevClose ?? 0);
-      const change     = price && prevClose ? price - prevClose : 0;
-      const changePct  = prevClose ? (change / prevClose) * 100 : 0;
-      setData({
-        symbol:        json.symbol ?? "AKPL",
-        price,
-        prevClose,
-        change,
-        changePercent: changePct,
-        volume:        Number(json.totalTradedQuantity ?? json.volume ?? 0),
-        updatedAt:     json.lastUpdatedDateTime ?? json.last_updated ?? "",
-      });
-      setLastFetched(new Date());
-    } catch {
-      // Fallback: try merolagani
+    const endpoints = [EDGE_FN, API_V2, NEPSE_API];
+    for (const url of endpoints) {
       try {
-        const res2 = await fetch(MERO_API);
-        if (!res2.ok) throw new Error();
-        const json2 = await res2.json();
-        const price     = Number(json2.LastTradedPrice ?? json2.ltp ?? json2.price ?? 0);
-        const prevClose = Number(json2.PreviousClose ?? json2.prevClose ?? 0);
-        const change    = price && prevClose ? price - prevClose : 0;
-        setData({
-          symbol:        "AKPL",
-          price,
-          prevClose,
-          change,
-          changePercent: prevClose ? (change / prevClose) * 100 : 0,
-          volume:        Number(json2.TotalShareTraded ?? json2.volume ?? 0),
-          updatedAt:     json2.AsOf ?? json2.lastUpdated ?? "",
-        });
-        setLastFetched(new Date());
+        const json = await tryFetch(url);
+        const parsed = parseStock(json);
+        if (parsed.price > 0) {
+          setData(parsed);
+          setLastFetched(new Date());
+          setLoading(false);
+          return;
+        }
       } catch {
-        setError(true);
+        // try next
       }
-    } finally {
-      setLoading(false);
     }
+    setError(true);
+    setLoading(false);
   }
 
   useEffect(() => {
