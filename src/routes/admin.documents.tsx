@@ -16,7 +16,7 @@ type Doc = {
   file_url: string;
   file_size_bytes: number | null;
   is_public: boolean | null;
-  uploaded_at: string;
+  uploaded_at: string | null;
   show_as_popup: boolean | null;
   popup_sort_order: number | null;
   sort_order: number;
@@ -109,7 +109,7 @@ function AdminDocs() {
   }
 
   async function updateField(id: string, field: string, value: unknown) {
-    await supabase.from("documents").update({ [field]: value }).eq("id", id);
+    await (supabase.from("documents") as any).update({ [field]: value }).eq("id", id);
     invalidate();
   }
 
