@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      akpl_price: {
+        Row: {
+          as_of: string | null
+          change: number | null
+          change_pct: number | null
+          id: number
+          prev_close: number | null
+          price: number | null
+          updated_at: string
+          volume: number | null
+        }
+        Insert: {
+          as_of?: string | null
+          change?: number | null
+          change_pct?: number | null
+          id: number
+          prev_close?: number | null
+          price?: number | null
+          updated_at?: string
+          volume?: number | null
+        }
+        Update: {
+          as_of?: string | null
+          change?: number | null
+          change_pct?: number | null
+          id?: number
+          prev_close?: number | null
+          price?: number | null
+          updated_at?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           email: string
