@@ -53,6 +53,7 @@ export type Database = {
           is_public: boolean | null
           popup_sort_order: number
           show_as_popup: boolean
+          sort_order: number
           title: string
           uploaded_at: string | null
         }
@@ -64,6 +65,7 @@ export type Database = {
           is_public?: boolean | null
           popup_sort_order?: number
           show_as_popup?: boolean
+          sort_order?: number
           title: string
           uploaded_at?: string | null
         }
@@ -75,6 +77,7 @@ export type Database = {
           is_public?: boolean | null
           popup_sort_order?: number
           show_as_popup?: boolean
+          sort_order?: number
           title?: string
           uploaded_at?: string | null
         }
@@ -251,6 +254,7 @@ export type Database = {
           is_published: boolean | null
           location: string | null
           name: string
+          salient_features: Json
           slug: string
           sort_order: number | null
           status: string | null
@@ -265,6 +269,7 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           name: string
+          salient_features?: Json
           slug: string
           sort_order?: number | null
           status?: string | null
@@ -279,6 +284,7 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           name?: string
+          salient_features?: Json
           slug?: string
           sort_order?: number | null
           status?: string | null
@@ -397,6 +403,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      refresh_akpl_price: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
