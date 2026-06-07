@@ -29,6 +29,7 @@ import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminSubsidiariesRouteImport } from './routes/admin.subsidiaries'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
+import { Route as AdminStockRouteImport } from './routes/admin.stock'
 import { Route as AdminPasswordRouteImport } from './routes/admin.password'
 import { Route as AdminPagesRouteImport } from './routes/admin.pages'
 import { Route as AdminNewsRouteImport } from './routes/admin.news'
@@ -143,6 +144,11 @@ const AdminProjectsRoute = AdminProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStockRoute = AdminStockRouteImport.update({
+  id: '/stock',
+  path: '/stock',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPasswordRoute = AdminPasswordRouteImport.update({
   id: '/password',
   path: '/password',
@@ -230,6 +236,8 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/pages': typeof AdminPagesRoute
+  '/admin/stock': typeof AdminStockRoute
+  '/admin/stock': typeof AdminStockRoute
   '/admin/password': typeof AdminPasswordRoute
   '/admin/projects': typeof AdminProjectsRouteWithChildren
   '/admin/subsidiaries': typeof AdminSubsidiariesRoute
@@ -333,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/news'
     | '/admin/pages'
+    | '/admin/stock'
     | '/admin/password'
     | '/admin/projects'
     | '/admin/subsidiaries'
@@ -566,6 +575,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/admin/projects'
       preLoaderRoute: typeof AdminProjectsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/stock': {
+      id: '/admin/stock'
+      path: '/stock'
+      fullPath: '/admin/stock'
+      preLoaderRoute: typeof AdminStockRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/password': {
